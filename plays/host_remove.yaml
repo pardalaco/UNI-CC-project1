@@ -1,0 +1,23 @@
+---
+- name: Delete host
+  hosts: all
+  become: yes
+  vars:
+    ansible_ssh_user: "{{ host_user }}"
+    ansible_ssh_pass: "{{ host_password }}"
+    ansible_become_password: "{{ host_password }}"
+  tasks:
+    - name: Uninstall packages
+      apt: name={{ item }} state=absent
+      with_items:
+      - libvirt-daemon-system
+      - rpcbind
+      - nfs-common
+    - name: Unmount IaaS folder
+      mount:
+        name: /mnt/iaas
+        state: unmounted
+    - name: Delete directory
+      file:
+        path: /mnt/iaas
+        state: absent
