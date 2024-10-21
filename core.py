@@ -5,6 +5,7 @@ import uuid
 
 FILE_DB = "iaas.db"
 FILE_IAAS_INIT = "./plays/iaas_init.yaml"
+FILE_IAAS_DESTROY = "./plays/iaas_destroy.yaml"
 FILE_HOST_ADD = "./plays/host_add.yaml"
 FILE_HOST_RM = "./plays/host_remove.yaml"
 
@@ -45,16 +46,26 @@ def init():
         playbook = os.path.abspath(FILE_IAAS_INIT),
         extravars={"iaas_password": "alumnonodo1"}
     )
-    if r.status == "failed": raise Exception("Ansible playbook error")
+    if r.status == "failed": raise Exception("Ansible playbook error, iaas not inicializated")
 
 
 def directory():
     print("destroy()")
-    # Hacer lo opuesto de init
+
+    # Eliminamos todos los hosts
+    hosts = listHosts()
+    for host in hosts:
+        removeHost(host['id'])
+
+    # Ejecutamos el playbook del iaas destroy
+    r = ansible_runner.interface.run(
+        host_pattern = "localhost",
+        playbook = os.path.abspath(FILE_IAAS_DESTROY),
+        extravars={"iaas_password": "alumnonodo1"}
+    )
+    if r.status == "failed": raise Exception("Ansible playbook error, iaas not destroyed.")
 
 
-    # Eliminamos primero las vm
-    
 
 def addHost(host):
     print("addHost()")
@@ -92,11 +103,15 @@ def addHost(host):
 def removeHost(hostId):
     print("removeHost()")
 
+
     hosts = listHosts(f"id='{hostId}'")
     if len(hosts) == 0: raise Exception("Hosst not exists")
 
     host = hosts[0]
     # print(host)
+
+    # Eliminamos las vm antes de remover el host
+
 
     # Execute the playbook of host_add.yaml
     r = ansible_runner.interface.run(
