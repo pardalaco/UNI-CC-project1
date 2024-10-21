@@ -52,6 +52,10 @@ def directory():
     print("destroy()")
     # Hacer lo opuesto de init
 
+
+    # Eliminamos primero las vm
+    
+
 def addHost(host):
     print("addHost()")
 
@@ -61,7 +65,7 @@ def addHost(host):
     if "password" not in host: raise Exception("Missing host password")
 
     hosts = listHosts(f"addr='{host['addr']}'")
-    # if len(hosts) > 0: raise Exception("Hosst already exists")
+    if len(hosts) > 0: raise Exception("Hosst already exists")
 
     # Execute the playbook of host_add.yaml
     r = ansible_runner.interface.run(
@@ -92,6 +96,7 @@ def removeHost(hostId):
     if len(hosts) == 0: raise Exception("Hosst not exists")
 
     host = hosts[0]
+    # print(host)
 
     # Execute the playbook of host_add.yaml
     r = ansible_runner.interface.run(
@@ -100,14 +105,14 @@ def removeHost(hostId):
         playbook = os.path.abspath(FILE_HOST_RM),
         extravars={
             "host_user": host['user'],
-            "host_password": 'alumno'}
+            "host_password": host['password']}
             # "host_password": host['password']} # Error! NO TENEMOS ALMACENADO POR NINGUNA PARTE EL PASSWORD DEL HOST
     )
     if r.status == "failed": raise Exception("Ansible playbook error")
 
     con = sqlite3.connect(FILE_DB)
     cur = con.cursor()
-    cur.execute(f"DELETE FROM hosts WHERE id = {hostId};")
+    cur.execute(f"DELETE FROM hosts WHERE id = '{hostId}';")
     con.commit()
     con.close()
 
@@ -129,7 +134,8 @@ def listHosts(query=''):
         host = {
             "id": row[0],
             "addr": row[1],
-            "user": row[2]            
+            "user": row[2],
+            "password": row[3]            
         }
         hosts.append(host)
     con.close()

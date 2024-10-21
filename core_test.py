@@ -6,8 +6,10 @@ import core
 
 
 
-print(core.listHosts(f"addr='172.23.185.204'"))
+# print(core.listHosts(f"addr='172.23.185.204'"))
 # core.addHost({"addr":"172.23.185.204", "user":"alumno", "password":"alumno"})
-# print(core.listHosts())
+print(core.listHosts())
 
-core.removeHost("169c3b05-8f79-4f00-b5b1-ea193d28a0c7")
+print(core.listHosts()[0]['id'])
+core.removeHost(str(core.listHosts()[0]['id']))
+print(core.listHosts())
