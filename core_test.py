@@ -1,10 +1,18 @@
 import time
 import core
+import iaas
+
+iaas.init()
+
 # core.init()
 
-core.addHost({"addr":"172.23.184.138", "user":"alumno", "password":"alumnonodo2"})
+# core.addHost({"addr":"172.23.184.138", "user":"alumno", "password":"alumnonodo2"})
 
-core.updateHost(core.listHosts()[0]['id'], {"addr":"172.23.184.138", "user":"alumno", "password":"alumnonodo2"})
+# core.addImage("file:///export/iaas/images/debian-12.qcow2", {"name":"img1", "desc":"desc1"})
+
+
+
+# core.updateHost(core.listHosts()[0]['id'], {"addr":"172.23.184.138", "user":"alumno", "password":"alumnonodo2"})
 
 # core.removeHost(core.listHosts()[0]["id"])
 

@@ -7,6 +7,7 @@ import shutil
 import json
 import libvirt
 import traceback
+from urllib.request import urlretrieve
 
 FILE_DB = "iaas.db"
 FILE_IAAS_INIT = "./plays/iaas_init.yaml"
@@ -44,6 +45,15 @@ def init():
                 host varchar(32)
             )
         """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS images(
+                id varchar(32), 
+                name varchar(32),  
+                description text
+            )
+        """)
+
         db.commit()
     except Exception as e:
         print("Database alredy exists")
@@ -406,3 +416,33 @@ def listVms(query:str=''):
 
     return vms
 
+# ------------------- LAB2
+
+def addImage(url, img):
+    print(f"addImage({url})")
+
+    if "name" not in img: raise Exception("Missing name")
+    if "desc" not in img: raise Exception("Missing desc")
+
+    img["id"] = str(uuid.uuid4())
+
+    # copy file
+    urlretrieve(url, os.path.join(DIR_IMAGES, img["id"] + ".qcow2"))
+
+    print(img)
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"insert into images values('{img['id']}', '{img['name']}', '{img['desc']}')")
+        db.commit()
+    except Exception as e:
+        traceback.print_exc()
+    db.close()
+    return img
+
+
+def saveImage(vmId, img): pass
+
+def removeImage(imgId): pass
+
+def listImage(query=""): pass
