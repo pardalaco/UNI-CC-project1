@@ -188,12 +188,68 @@ def removeUser(token, userId):
     finally:
         db.close()
 
-def updateUsers(tocken, userId, data): 
+def updateUser(token, userId, data):
     """
     Actualiza el usuario especificado.
     Sólo puede ser invocada por un administrador o el propio
     usuario.
     """
+    print(f"updateUser()")
+
+    # Validar token de usuario
+    issuser = validateToken(token)
+    if not issuser["admin"] and issuser["user_id"] != userId:
+        raise Exception("Unauthorized")
+
+    # Conectar a la base de datos
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+
+    try:
+        # Comprobar si el usuario con el ID proporcionado existe
+        cur.execute(f"SELECT * FROM users WHERE id = '{userId}'")
+        user = cur.fetchone()
+        if not user:
+            raise Exception("User not found")
+
+        # Construir la consulta SQL de actualización
+        set_clause = []
+
+        # Añadir campos a la cláusula SET
+        for key, value in data.items():
+            if key not in ["id", "email"]:
+                set_clause.append(f"'{key}' = '{value}'")
+            else:
+                raise Exception(f"It is not allowed to change the value {key}")
+
+        # Si no se encuentran campos válidos para actualizar, lanzar una excepción
+        if not set_clause:
+            raise Exception("No valid fields to update")
+
+        cur.execute(f"""UPDATE users 
+                    SET {', '.join(set_clause)} 
+                    WHERE id = '{userId}'""")
+
+        db.commit()
+
+        # Devolver los datos actualizados (sin la contraseña)
+        cur.execute("SELECT * FROM users WHERE id = ?", (userId,))
+        updated_user = cur.fetchone()
+        updated_user_dict = {
+            "id": updated_user[0],
+            "email": updated_user[1],
+            "quota": updated_user[3],
+            "admin": updated_user[4]
+        }
+
+        return updated_user_dict
+
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+
+    finally:
+        db.close()
 
 
 def listUsers(token, query = ""): 
