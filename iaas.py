@@ -10,6 +10,11 @@ FILE_DB = "iaas.db"
 PASSWORD = "password"
 
 def init():
+    """
+    Inicializa el core del Iaas, invocando la función core.init() y crea
+    las tablas necesarias para añadir funcionalidades avanzadas.
+    Entre otras, la tabla users.
+    """
     core.init()
 
     db = sqlite3.connect(FILE_DB)
@@ -75,7 +80,11 @@ def login(email, password):
         db.close()
 
 def validateToken(token):
-    print(f"validateToken({token})")
+    """
+    Valida el token especificado. Si la operación tiene éxito
+    devuelve la información del usuario autenticado.
+    """
+    print(f"validateToken()")
     data = cryptocode.decrypt(token, PASSWORD)
     if not data: raise Exception("Invalid token")
     data = json.loads(data)
@@ -83,6 +92,12 @@ def validateToken(token):
     return data["user"]
 
 def addUser(token, user):
+    """
+    Crea un nuevo usuario. El parámetro user es un diccionario que
+    al menos contiene email y password.
+    Esta operación sólo puede ser invocada por un administrador.
+    Si la operación tiene éxito, devuelve el usuario creado.
+    """
     print(f"addUser()")
 
     # Comprobamos si el token es valido y los campos son correctos
@@ -126,11 +141,65 @@ def addUser(token, user):
         db.close()
 
 
-def removeUser(tocken, userId): pass
+def removeUser(token, userId):
+    """
+    Elimina el usuario especificado.
+    Sólo puede ser invocada por un administrador.
+    Podría conllevar la destrucción de todos los recursos asignados
+    al usuario.
+    """
+    print(f"removeUser()")
 
-def updateUsers(tocken, userId, data): pass
+    # Validar token de usuario
+    issuser = validateToken(token)
+    if not issuser["admin"]:
+        raise Exception("Unauthorized, admin permision required")
+
+    # Conectar a la base de datos
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+
+    try:
+        # Comprobar si el usuario con el ID proporcionado existe
+        cur.execute(f"SELECT * FROM users WHERE id = '{userId}'")
+        rows = cur.fetchone()
+        if not rows:
+            raise Exception("User not found")
+        
+        # Crear el diccionario del usuario
+        user = {
+            "id": rows[0],   
+            "email": rows[1],
+            "admin": rows[4]
+        }
+        # Destrucción de los recursos asignados al usuario
+        # ???
+
+        # Eliminar el usuario de la base de datos
+        cur.execute(f"DELETE FROM users WHERE id = '{userId}'")
+        db.commit()
+
+        return user
+
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    
+    finally:
+        db.close()
+
+def updateUsers(tocken, userId, data): 
+    """
+    Actualiza el usuario especificado.
+    Sólo puede ser invocada por un administrador o el propio
+    usuario.
+    """
+
 
 def listUsers(token, query = ""): 
+    """
+    Lista los usuarios especificados en el filtro query.
+    """
     print("listVms()")
 
     con = sqlite3.connect(FILE_DB)
