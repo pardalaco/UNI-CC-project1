@@ -445,4 +445,4 @@ def saveImage(vmId, img): pass
 
 def removeImage(imgId): pass
 
-def listImage(query=""): pass
+def listImages(query=""): pass
