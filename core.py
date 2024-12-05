@@ -18,6 +18,8 @@ FILE_HOST_RM = "./plays/host_remove.yaml"
 DIR_IAAS = "/export/iaas"
 DIR_IMAGES = os.path.join(DIR_IAAS, "images")
 DIR_VMS = os.path.join(DIR_IAAS, "vms")
+
+DIR_HOST_IMAGES = "/mnt/iaas/images"
 DIR_HOST_VMS = "/mnt/iaas/vms"
 
 def init(): 
@@ -250,7 +252,7 @@ def listHosts(query=''):
     return hosts
 
 # ------- VMs
-def addVm(vm:str):
+def addVm(vm:dict):
     """
     Crea una nueva máquina virtual en un host.
     Se selecciona un host en el que se debe ejecutar la máquina virtual.
@@ -522,6 +524,37 @@ def saveImage(vmId, img):
     """
     print(f"saveImage()")
 
+    if "name" not in img: raise Exception("Missing name")
+    if "desc" not in img: raise Exception("Missing desc")
+
+    img["id"] = str(uuid.uuid4())
+
+    # Comprobamos la existencia de la vm
+    vm = listVms(f"id = '{vmId}'")
+    if vm == []: raise Exception(f"Virtual machin {vmId} don't exist")
+    else: vm = vm[0]
+    print(vm)
+
+    # Comprobamos que la vm este apagada
+    if vm['state'] != "stopped":
+        stopVm(vmId)
+
+    # Copiado de la iamgen
+    imgOrigin = os.path.join(DIR_VMS, vmId  + ".qcow2")
+    imgDestination = os.path.join(DIR_IMAGES, img["id"] + ".qcow2")
+
+    shutil.copyfile(imgOrigin, imgDestination)
+
+
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"insert into images values('{img['id']}', '{img['name']}', '{img['desc']}')")
+        db.commit()
+    except Exception as e:
+        traceback.print_exc()
+    db.close()
+    return img
 
 def removeImage(imgId:str):
     """

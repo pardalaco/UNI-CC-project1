@@ -31,10 +31,28 @@ import core
 
 # img = core.addImage(
 #     "https://cloud.debian.org/images/cloud/bookworm/20230531-1397/debian-12-generic-amd64-20230531-1397.qcow2",
-#     {"name": "debian12", "desc":"debian12"})
+#     {"name": "debian-12", "desc":"debian12"})
 
 # print(img)
 
-listImages = core.listImages()
+# core.addHost({"addr":"172.23.184.138", "user":"alumno", "password":"alumnonodo2"})
 
-print(listImages)
+
+# vm = core.addVm({
+#     "image":"debian-12"
+#     })
+# print(vm)
+# core.startVm("62028555-2ea5-4e58-b278-17d6996bcec8")
+
+# listVms = core.listVms()
+# print(listVms)
+
+img = core.saveImage(
+    "62028555-2ea5-4e58-b278-17d6996bcec8",
+    {"name": "debian12-3", "desc":"debian12"})
+
+print(img)
+
+# core.saveImage(
+#     "62028555-2ea5-4e58-b278-17d6996bcec8a",
+#     {"name": "debian12", "desc":"debian12"})
