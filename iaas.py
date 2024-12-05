@@ -328,6 +328,12 @@ def addImage(token:str, url:str, img:dict) -> dict:
 
     return img
 
+def removeImage(token:str, imgId:str): 
+    """
+    Elimina la imagen especificada.
+    Solo puede eliminar la imagen un administrador o el propietario de la imagen.
+    """
+
 
 def listImages(token:str, query:str = ""):
     """
@@ -357,6 +363,5 @@ def listImages(token:str, query:str = ""):
             db.commit()
             db.close()
 
-def removeImage(token, imgId): pass
     
 # ---------- Vms

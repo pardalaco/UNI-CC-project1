@@ -446,8 +446,38 @@ def addImage(url, img) -> dict:
     return img
 
 
-def saveImage(vmId, img): pass
+def saveImage(imgId, img): pass
 
-def removeImage(imgId): pass
+def removeImage(imgId:str):
+    """
+    Elimina la imagen especificada.
+    """
+    print(f"removeImage({imgId})")
+
+     # Conectar a la base de datos
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        # Comprobar si la imagen existe en la base de datos
+        cur.execute(f"select id from images where id = '{imgId}'")
+        result = cur.fetchone()
+        if not result:
+            raise Exception("Image ID not found in database")
+
+        # Eliminar el archivo de imagen
+        img_path = os.path.join(DIR_IMAGES, imgId + ".qcow2")
+        if os.path.exists(img_path):
+            os.remove(img_path)
+        else:
+            raise Exception(f"Image file not foundin directory {DIR_IMAGES}")
+
+        # Eliminar la entrada de la base de datos
+        cur.execute(f"delete from images where id = '{imgId}'")
+        db.commit()
+    except Exception as e:
+        traceback.print_exc()
+        raise
+    finally:
+        db.close()
 
 def listImages(query=""): pass
