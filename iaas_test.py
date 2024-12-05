@@ -1,10 +1,10 @@
 import iaas
-iaas.init()
+# iaas.init()
 
 t = iaas.login("root", "root")
 
 
-iaas.addUser(t, {"email": "a", "password": "a"})
+iaas.addUser(t, {"email": "b", "password": "b"})
 
 s = iaas.listUsers(t)
 

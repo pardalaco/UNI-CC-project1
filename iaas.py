@@ -39,6 +39,13 @@ def init():
     # Gestión de usuarios
 
 def login(email, password):
+    """
+    Autentica a un usuario. Si la operación tiene éxito, devuelve un
+    token cifrado, que contiene al menos el id del usuario
+    autenticado y la fecha de autenticación. El resto de operaciones
+    de iaas.py debe aceptar como primer parámetro este token.
+    """
+    
     print(f"login({email}, {password})")
     db = sqlite3.connect(FILE_DB)
     cur = db.cursor()
@@ -78,12 +85,14 @@ def validateToken(token):
 def addUser(token, user):
     print(f"addUser()")
 
+    # Comprobamos si el token es valido y los campos son correctos
     issuser = validateToken(token)
     if not issuser["admin"]: raise Exception("Unautorized")
 
     if "email" not in user: raise Exception("Missing email")
     if "password" not in user: raise Exception("Missing password")
 
+    # Definimos los parametros por defecto al usuario
     if "admin" not in user: user["admin"] = 0
     if "quota" not in user: user["quota"] = "{}"
 
@@ -92,6 +101,13 @@ def addUser(token, user):
     db = sqlite3.connect(FILE_DB)
     cur = db.cursor()
     try:
+        # Verificar si el usuario con el email ya existe
+        cur.execute("SELECT * FROM users WHERE email = ?", (user['email'],))
+        existing_user = cur.fetchone()
+        if existing_user:
+            raise Exception("Email already exists")
+
+        # Insertamos el usuario
         cur.execute(f"""INSERT OR IGNORE INTO users VALUES(
                     '{user['id']}', 
                     '{user['email']}', 
