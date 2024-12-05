@@ -418,7 +418,12 @@ def listVms(query:str=''):
 
 # ------------------- LAB2
 
-def addImage(url, img):
+def addImage(url, img) -> dict:
+    """
+    Añade una nueva imagen al IaaS. El parámetro url especifica
+    su ubicación origen. El parámetro img es un diccionario que
+    contiene al menos los campos name y desc.
+    """
     print(f"addImage({url})")
 
     if "name" not in img: raise Exception("Missing name")

@@ -43,6 +43,8 @@ def init():
 
     # Gestión de usuarios
 
+# ----------- Users
+
 def login(email, password):
     """
     Autentica a un usuario. Si la operación tiene éxito, devuelve un
@@ -139,7 +141,6 @@ def addUser(token, user):
     finally: 
         db.commit()
         db.close()
-
 
 def removeUser(token, userId):
     """
@@ -297,7 +298,13 @@ def removeHost(token, hostId): pass
 
 # ---------- Img
 
-def addImage(token, url, img):
+def addImage(token:str, url:str, img:dict) -> dict:
+    """
+    Añade una nueva imagen al IaaS. El parámetro url especifica
+    su ubicación origen. El parámetro img es un diccionario que
+    contiene al menos los campos name y desc.
+    """
+    print("addImage()")
     issuer = validateToken(token)
 
     img = core.addImage(url, img)
@@ -322,7 +329,11 @@ def addImage(token, url, img):
     return img
 
 
-def listImages(token, query = ""):
+def listImages(token:str, query:str = ""):
+    """
+    Lista las imágenes que verifican el filtro especificado en query.
+    """
+    print("listImages()")
     issuer = validateToken(token)
 
     if issuer["admin"]:
