@@ -434,7 +434,7 @@ def addImage(url, img) -> dict:
     # copy file
     urlretrieve(url, os.path.join(DIR_IMAGES, img["id"] + ".qcow2"))
 
-    print(img)
+    # print(img)
     db = sqlite3.connect(FILE_DB)
     cur = db.cursor()
     try:
@@ -480,4 +480,26 @@ def removeImage(imgId:str):
     finally:
         db.close()
 
-def listImages(query=""): pass
+def listImages(query=""):
+    """
+    Lista las imágenes que verifican el filtro especificado en query.
+    """
+    print("listImages()")
+
+    con = sqlite3.connect(FILE_DB)
+    cur = con.cursor()
+    
+    cur.execute(f'select * from images'+ ("" if query == '' else " WHERE " + query))
+    rows = cur.fetchall()
+
+    images = []
+    for row in rows:
+        user = {
+            "id": row[0],
+            "name": row[1],
+            "desc": row[2]
+        }
+        images.append(user)
+    con.close()
+
+    return images
