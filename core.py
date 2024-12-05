@@ -21,6 +21,14 @@ DIR_VMS = os.path.join(DIR_IAAS, "vms")
 DIR_HOST_VMS = "/mnt/iaas/vms"
 
 def init(): 
+    """
+    Inicializa el nodo controlador. Ello implica, al menos:
+    1. Inicializar la base de datos SQLite.
+    2. Garantizar que el repositorio del IaaS /export/iaas ha sido exportado por NFS.
+    Para (2) se recomienda añadir algunas tareas al playbook ./plays/iaas_init.yaml que se
+    aseguren que NFS está instalado localmente, y que exporta el repositorio /export/iaas.
+    Serán de utilidad los módulos apt, file, lineinfile y systemd. Por ejemplo:
+    """
     print("init()")
 
     # Create db
@@ -69,6 +77,11 @@ def init():
 
 
 def directory():
+    """
+    Debería de hacer lo opuesto a core.init(). Esta operación destruye el IaaS. Implica mucho
+    trabajo de destrucción, en especial cuando el IaaS tenga múltiples hosts y estos tengan
+    múltiples máquinas virtuales. Ejecutará el playbook ./plays/iaas_destroy.yaml.
+    """
     print("destroy()")
 
     # Eliminamos todos los hosts
@@ -86,7 +99,17 @@ def directory():
 
 
 
+# ---------------- Hosts
 def addHost(host):
+    """
+    Añade un nuevo host al IaaS. Antes será necesario preparar al host. Para ello se utilizará
+    el playbook ./plays/host_add.yaml. Ya se ha comentado anteriormente qué implica preparar
+    a un host. Serán de utilidad los módulos apt (para instalar Libvirt, cliente NFS), file (para
+    crear el directorio local de montaje) y mount (para montar el repositorio del IaaS en el
+    directorio local).
+    Una vez el host haya sido correctamente preparado, será necesario actualizar la base de
+    datos
+    """
     print("addHost()")
 
     # Check if "host" contains all information necessary
@@ -118,8 +141,14 @@ def addHost(host):
 
     return host
 
-
 def removeHost(hostId):
+    """
+    Elimina un host del IaaS. Esto implica dejarlo en su estado original. Se hará uso del
+    playbook ./plays/node_remove.yaml, que efectuará las operaciones opuestas a
+    ./plays/node_add.yaml.
+    Además, si el host dispone de máquinas virtuales, habría que eliminarlas previamente.
+    Si la operación tiene éxito, se actualizará la base de datos convenientemente.
+    """
     print("removeHost()")
 
 
@@ -164,9 +193,8 @@ def removeHost(hostId):
     con.commit()
     con.close()
 
-
-
 def updateHost(hostId:str, data:str):
+    """Permite actualizar los datos del host."""
     print("updateHost()")
     con = sqlite3.connect(FILE_DB)
     cur = con.cursor()
@@ -196,6 +224,11 @@ def updateHost(hostId:str, data:str):
     con.close()
 
 def listHosts(query=''):
+    """
+    Lista los hosts que forman parte del IaaS. Bastará con consultar la base de datos local. El
+    parámetro query permitirá filtrar los resultados. Para simplificar, se podría aprovechar la
+    misma sintaxis de SQL (aunque no sea muy seguro ;-)).
+    """
     print("listHosts()")
 
     con = sqlite3.connect(FILE_DB)
@@ -218,6 +251,16 @@ def listHosts(query=''):
 
 # ------- VMs
 def addVm(vm:str):
+    """
+    Crea una nueva máquina virtual en un host.
+    Se selecciona un host en el que se debe ejecutar la máquina virtual.
+    Se copia la imagen definida en vm[“image”] del directorio /export/iaas/images al directorio /
+    export/iaas/vms con un nombre igual a vm[“id”].
+    Se lee la plantilla ./template.xml y se modifican las configuraciones específicas de la
+    máquina virtual (el id, la mem, el disk, etc.)
+    Se crea el dominio con libvirt.defineXML().
+    Se guardan los cambios en la base de datos.
+    """
     print("addVm()")
     
     # Comprobamos que la entrada sea correcta
@@ -282,6 +325,12 @@ def addVm(vm:str):
     return vm
 
 def startVm(vmId:str):
+    """
+    Arranca la máquina virtual especificada.
+    Se busca el dominio con libvirt.lookupByName().
+    Se arranca el dominio con libvirt.create().
+    Se guardan los cambios en la base de datos.
+    """
     print("startVm()")
     
     db = sqlite3.connect(FILE_DB)
@@ -316,6 +365,12 @@ def startVm(vmId:str):
     db.close()  
 
 def stopVm(vmId:str):
+    """
+    Para la máquina virtual especificada.
+    Se busca el dominio con libvirt.lookupByName().
+    Se para el dominio con libvirt.shutdown().
+    Se guardan los cambios en la base de datos.
+    """
     print("stopVm()")
     
     db = sqlite3.connect(FILE_DB)
@@ -350,6 +405,13 @@ def stopVm(vmId:str):
     db.close()
 
 def removeVm(vmId:str):
+    """
+    Elimina la máquina virtual especificada.
+    Se busca el dominio con libvirt.lookupByName().
+    Se para el dominio con libvirt.undefine().
+    Se elimina el disco duro virtual de la máquina virtual de /export/iaas/vms.
+    Se guardan los cambios en la base de datos.
+    """
     print("removeVm()")
     
     db = sqlite3.connect(FILE_DB)
@@ -395,6 +457,11 @@ def removeVm(vmId:str):
     db.close()
 
 def listVms(query:str=''): 
+    """
+    Lista las máquinas virtuales que forman parte del IaaS. Bastará con consultar la base de
+    datos local. El parámetro query permitirá filtrar los resultados. Para simplificar, se podría
+    aprovechar la misma sintaxis de SQL (aunque no sea muy seguro ;-)).
+    """
     print("listVms()")
 
     con = sqlite3.connect(FILE_DB)
@@ -445,8 +512,16 @@ def addImage(url, img) -> dict:
     db.close()
     return img
 
+def saveImage(vmId, img):
+    """
+    Crea una nueva imagen a partir de una vm existente. El
+    parámetro vmId especifica la vm. El parámetro img es un
+    diccionario que contiene al menos los campos name y desc.
+    Si la vm está en ejecución, se recomienda pararla previamente,
+    para evitar pérdidas de datos en la imagen.
+    """
+    print(f"saveImage()")
 
-def saveImage(imgId, img): pass
 
 def removeImage(imgId:str):
     """
