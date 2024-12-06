@@ -282,6 +282,10 @@ def listUsers(token, query = ""):
 # ----------- Hosts
 
 def addHost(token, host):
+    """
+    Un administrador añade un host. Si es administrador, se
+    invocará a core.addHost().
+    """
     issuer = validateToken(token)
 
     if not issuer["admin"]: raise Exception("Unautorized")
@@ -291,10 +295,18 @@ def addHost(token, host):
     return host
 
 def listHosts(token, query = ""):
+    """
+    Cualquier usuario puede listar los hosts. Se invocará
+    core.listHosts().
+    """
     issuer = validateToken(token)
     return core.listHosts(query)
 
 def updateHost(token:str, hostId:str, data:dict):
+    """
+    Un administrador actualiza un host. Si es administrador, se
+    invocará core.updateHost().
+    """
     issuer = validateToken(token)
 
     if not issuer["admin"]: raise Exception("Unautorized")
@@ -302,6 +314,10 @@ def updateHost(token:str, hostId:str, data:dict):
     core.updateHost(hostId, data)
 
 def removeHost(token, hostId): 
+    """
+    Un administrador elimina un host. Si es administrador, se
+    invocará a core.removeHost().
+    """
     issuer = validateToken(token)
 
     if not issuer["admin"]: raise Exception("Unautorized")
@@ -312,9 +328,9 @@ def removeHost(token, hostId):
 
 def addImage(token:str, url:str, img:dict) -> dict:
     """
-    Añade una nueva imagen al IaaS. El parámetro url especifica
-    su ubicación origen. El parámetro img es un diccionario que
-    contiene al menos los campos name y desc.
+    Un usuario añade una imagen. Para ello, invoca
+    core.addImage(). Al finalizar será necesario añadir un nuevo
+    permiso del usuario creador sobre la imagen creada.
     """
     print("addImage()")
     issuer = validateToken(token)
@@ -342,14 +358,20 @@ def addImage(token:str, url:str, img:dict) -> dict:
 
 def removeImage(token:str, imgId:str): 
     """
-    Elimina la imagen especificada.
-    Solo puede eliminar la imagen un administrador o el propietario de la imagen.
+    Un usuario elimina su imagen. Si el usuario no es
+    administrador, será necesario comprobar su permiso sobre la
+    imagen. Después invocará core.removeImage(). Deberán
+    eliminarse todos los permisos existentes sobre la imagen.
     """
+
 
 
 def listImages(token:str, query:str = ""):
     """
-    Lista las imágenes que verifican el filtro especificado en query.
+    Un usuario lista sus imágenes. Si el usuario no es
+    administrador, será necesario obtener sus permisos sobre
+    imágenes. Después invocará core.listImages() buscando dichas
+    imágenes.
     """
     print("listImages()")
     issuer = validateToken(token)
@@ -377,3 +399,50 @@ def listImages(token:str, query:str = ""):
 
     
 # ---------- Vms
+
+def addVm(token:str, vm:dict):
+    """
+    Un usuario añade una vm a partir de una imagen. Si el usuario
+    no es administrador debe tener permisos sobre la imagen
+    origen. Si es el caso, entonces se invoca core.addVm(). Al
+    finalizar será necesario añadir un nuevo permiso del usuario
+    creador sobre la vm creada.
+    """
+
+
+def listVms(token:str, query:str=""):
+    """
+    Un usuario lista sus vms. Si el usuario no es administrador,
+    será necesario obtener sus permisos sobre vms. Después
+    invocará core.listVms() buscando dichas vms.
+    """
+
+def startVm(token:str, vmId:str):
+    """
+    Un usuario arranca su vm. Si el usuario no es administrador,
+    será necesario comprobar su permiso sobre la vm. Después
+    invocará core.startVm().
+    """
+
+def stopVm(token:str, vmId:str):
+    """
+    Un usuario para su vm. Si el usuario no es administrador, será
+    necesario comprobar su permiso sobre la vm. Después
+    invocará core.stopVm().
+    """
+
+def removeVm(token:str, vmId:str):
+    """
+    Un usuario elimina su vm. Si el usuario no es administrador,
+    será necesario comprobar su permiso sobre la vm. Después
+    invocará core.removeVm(). Deberán eliminarse todos los
+    permisos existentes sobre la vm.
+    """
+
+def saveVmAsImage(token:str, vmId:str, img:dict):
+    """
+    Un usuario guarda su vm como nueva imagen. Si el usuario no
+    es administrador, será necesario comprobar su permiso sobre
+    la vm. Después invocará core.saveVmAsImage(). Deberá
+    añadirse un nuevo permiso del usuario sobre la imagen creada.
+    """
