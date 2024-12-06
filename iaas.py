@@ -559,9 +559,7 @@ def startVm(token:str, vmId:str):
         db.close()
 
     # Verificamos los permisos y ejecutamos la función
-    if issuer["admin"]:
-        core.startVm(vmId)
-    else:
+    if not issuer["admin"]:
         db = sqlite3.connect(FILE_DB)
         cur = db.cursor()
         try:
@@ -579,7 +577,7 @@ def startVm(token:str, vmId:str):
             db.commit()
             db.close()
         
-        core.startVm(vmId)
+    core.startVm(vmId)
 
 
 
@@ -607,9 +605,7 @@ def stopVm(token:str, vmId:str):
         db.close()
 
     # Verificamos los permisos y ejecutamos la función
-    if issuer["admin"]:
-        core.stopVm(vmId)
-    else:
+    if not issuer["admin"]:
         db = sqlite3.connect(FILE_DB)
         cur = db.cursor()
         try:
@@ -627,7 +623,7 @@ def stopVm(token:str, vmId:str):
             db.commit()
             db.close()
         
-        core.stopVm(vmId)
+    core.stopVm(vmId)
 
 def removeVm(token:str, vmId:str):
     """
@@ -654,9 +650,7 @@ def removeVm(token:str, vmId:str):
         db.close()
 
     # Verificamos los permisos y ejecutamos la función
-    if issuer["admin"]:
-        core.removeVm(vmId)
-    else:
+    if not issuer["admin"]:
         db = sqlite3.connect(FILE_DB)
         cur = db.cursor()
         try:
@@ -674,4 +668,4 @@ def removeVm(token:str, vmId:str):
             db.commit()
             db.close()
         
-        core.removeVm(vmId)
+    core.removeVm(vmId)
