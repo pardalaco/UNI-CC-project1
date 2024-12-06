@@ -542,6 +542,45 @@ def startVm(token:str, vmId:str):
     invocará core.startVm().
     """
     print("iaas.startVm()")
+    issuer = validateToken(token)
+
+    # Comprobamos si existe la vm
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"""SELECT 1 FROM Vms WHERE id = '{vmId}';""")
+        rows = cur.fetchall()
+        if rows == []: raise Exception("vm don't exist")
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    finally: 
+        db.commit()
+        db.close()
+
+    # Verificamos los permisos y ejecutamos la función
+    if issuer["admin"]:
+        core.startVm(vmId)
+    else:
+        db = sqlite3.connect(FILE_DB)
+        cur = db.cursor()
+        try:
+            cur.execute(f"""SELECT * FROM perms WHERE 
+                        user = '{issuer['id']}' and
+                        resource = '{vmId}' and
+                        type = 'vm';
+                        """)
+            rows = cur.fetchall()
+            if rows == []: raise Exception("You do not have permissions")
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+        finally: 
+            db.commit()
+            db.close()
+        
+        core.startVm(vmId)
+
 
 
 def stopVm(token:str, vmId:str):
