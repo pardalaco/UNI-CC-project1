@@ -510,6 +510,29 @@ def listVms(token:str, query:str=""):
     invocará core.listVms() buscando dichas vms.
     """
     print("iaas.listVms()")
+    issuer = validateToken(token)
+
+    if issuer["admin"]:
+        vms = core.listVms(query)
+    else:
+
+        db = sqlite3.connect(FILE_DB)
+        cur = db.cursor()
+        try:
+            cur.execute(f"""SELECT * FROM perms where user = '{issuer['id']}' and type='vm'""")
+            rows = cur.fetchall()
+            ids = [f"'{row[1]}'" for row in rows]
+            if len(query): query += " AND id in(" + ", ".join(ids) + ")"
+            else: query = "id IN (" + ", ".join(ids) + ")"
+            vms = core.listVms(query)
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+        finally: 
+            db.commit()
+            db.close()
+    
+    return vms
 
 
 def startVm(token:str, vmId:str):
