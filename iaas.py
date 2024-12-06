@@ -181,8 +181,18 @@ def removeUser(token, userId):
             "email": rows[1],
             "admin": rows[4]
         }
+
         # Destrucción de los recursos asignados al usuario
-        # ???
+        #Eliminamos las imagenes
+        images = listImages(token)
+        for image in images:
+            removeImage(token, image['id'])
+        
+        # Eliminamos las vms
+        vms = listVms(token)
+        for vm in vms:
+            removeVm(token, vm['id'])
+
 
         # Eliminar el usuario de la base de datos
         cur.execute(f"DELETE FROM users WHERE id = '{userId}'")
