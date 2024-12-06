@@ -322,7 +322,7 @@ def addVm(vm:dict):
     except Exception as e:
         traceback.print_exc()
     db.close()
-    print(vm)
+    # print(vm)
     
     return vm
 

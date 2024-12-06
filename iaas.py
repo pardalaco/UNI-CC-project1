@@ -410,9 +410,6 @@ def removeImage(token:str, imgId:str):
             db.commit()
             db.close()
 
-
-
-
 def listImages(token:str, query:str = ""):
     """
     Un usuario lista sus imágenes. Si el usuario no es
@@ -458,7 +455,47 @@ def addVm(token:str, vm:dict):
     finalizar será necesario añadir un nuevo permiso del usuario
     creador sobre la vm creada.
     """
+    issuer = validateToken(token)
 
+    if not issuer["admin"]:
+        db = sqlite3.connect(FILE_DB)
+        cur = db.cursor()
+        try:
+            cur.execute(f"""SELECT * FROM perms WHERE 
+                        user = '{issuer['id']}' and
+                        resource = '{vm['image']}' and
+                        type = 'image';
+                        """)
+            rows = cur.fetchall()
+            if rows == []: raise Exception("You do not have permissions")
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+        finally: 
+            db.commit()
+            db.close()
+
+
+    vm = core.addVm(vm)
+
+    if not issuer["admin"]:
+        db = sqlite3.connect(FILE_DB)
+        cur = db.cursor()
+        try:
+            cur.execute(f"""INSERT OR IGNORE INTO perms VALUES(
+                        '{issuer['id']}', 
+                        '{vm['id']}', 
+                        'vm'
+                        )
+                        """)
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+        finally: 
+            db.commit()
+            db.close()
+    
+    return vm
 
 def listVms(token:str, query:str=""):
     """
@@ -487,12 +524,4 @@ def removeVm(token:str, vmId:str):
     será necesario comprobar su permiso sobre la vm. Después
     invocará core.removeVm(). Deberán eliminarse todos los
     permisos existentes sobre la vm.
-    """
-
-def saveVmAsImage(token:str, vmId:str, img:dict):
-    """
-    Un usuario guarda su vm como nueva imagen. Si el usuario no
-    es administrador, será necesario comprobar su permiso sobre
-    la vm. Después invocará core.saveVmAsImage(). Deberá
-    añadirse un nuevo permiso del usuario sobre la imagen creada.
     """
