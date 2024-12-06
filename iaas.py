@@ -179,19 +179,21 @@ def removeUser(token, userId):
         user = {
             "id": rows[0],   
             "email": rows[1],
+            "password": rows[2],
             "admin": rows[4]
         }
 
         # Destrucción de los recursos asignados al usuario
+        userToken = login(user['email'], user['password'])
         #Eliminamos las imagenes
-        images = listImages(token)
+        images = listImages(userToken)
         for image in images:
-            removeImage(token, image['id'])
+            removeImage(userToken, image['id'])
         
         # Eliminamos las vms
-        vms = listVms(token)
+        vms = listVms(userToken)
         for vm in vms:
-            removeVm(token, vm['id'])
+            removeVm(userToken, vm['id'])
 
 
         # Eliminar el usuario de la base de datos
@@ -415,9 +417,8 @@ def removeImage(token:str, imgId:str):
         try:
             cur.execute(f"""
                         DELETE FROM perms
-                        WHERE user = '{issuer['id']}' AND resource = '{imgId}' AND type = 'image'
+                        WHERE user = '{issuer['id']}' AND resource = '{imgId}' AND type = 'image';
                     """)
-            if result == []: raise Exception(f"Error removeImage(delete)")
         except Exception as e:
             traceback.print_exc()
             raise e
@@ -677,6 +678,21 @@ def removeVm(token:str, vmId:str):
             db.close()
         
     core.removeVm(vmId)
+
+    if not issuer["admin"]:
+        db = sqlite3.connect(FILE_DB)
+        cur = db.cursor()
+        try:
+            cur.execute(f"""
+                        DELETE FROM perms
+                        WHERE user = '{issuer['id']}' AND resource = '{vmId}' AND type = 'vm';
+                    """)
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+        finally: 
+            db.commit()
+            db.close()
 
 def saveVmAsImage(token:str, vmId:str, img:dict):
     """
