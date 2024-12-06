@@ -423,6 +423,8 @@ def listImages(token:str, query:str = ""):
     print("listImages()")
     issuer = validateToken(token)
 
+    images = None
+
     if issuer["admin"]:
         images = core.listImages(query)
     else:
@@ -430,19 +432,20 @@ def listImages(token:str, query:str = ""):
         db = sqlite3.connect(FILE_DB)
         cur = db.cursor()
         try:
-            cur.execute(f"""SELECT * FROM perms where users = '{issuer['id']}' and type='image'""")
+            cur.execute(f"""SELECT * FROM perms where user = '{issuer['id']}' and type='image'""")
             rows = cur.fetchall()
-            ids = [f"{row[1]}" for row in rows]
-            if len(query): query += " AND id in(" + ",".join(ids) + ")"
-            else: query = "id in(" + ",".join(ids) + ")"
+            ids = [f"'{row[1]}'" for row in rows]
+            if len(query): query += " AND id in(" + ", ".join(ids) + ")"
+            else: query = "id IN (" + ", ".join(ids) + ")"
             images = core.listImages(query)
-            return images
         except Exception as e:
             traceback.print_exc()
             raise e
         finally: 
             db.commit()
             db.close()
+    
+    return images
 
     
 # ---------- Vms

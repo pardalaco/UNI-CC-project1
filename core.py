@@ -593,21 +593,25 @@ def listImages(query=""):
     Lista las imágenes que verifican el filtro especificado en query.
     """
     print("listImages()")
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f'select * from images'+ ("" if query == '' else " WHERE " + query)+";")
+        rows = cur.fetchall()
 
-    con = sqlite3.connect(FILE_DB)
-    cur = con.cursor()
-    
-    cur.execute(f'select * from images'+ ("" if query == '' else " WHERE " + query))
-    rows = cur.fetchall()
 
-    images = []
-    for row in rows:
-        user = {
-            "id": row[0],
-            "name": row[1],
-            "desc": row[2]
-        }
-        images.append(user)
-    con.close()
+        images = []
+        for row in rows:
+            user = {
+                "id": row[0],
+                "name": row[1],
+                "desc": row[2]
+            }
+            images.append(user)
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    db.close()
+
 
     return images
