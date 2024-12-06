@@ -301,8 +301,12 @@ def updateHost(token:str, hostId:str, data:dict):
 
     core.updateHost(hostId, data)
 
+def removeHost(token, hostId): 
+    issuer = validateToken(token)
 
-def removeHost(token, hostId): pass
+    if not issuer["admin"]: raise Exception("Unautorized")
+
+    core.removeHost(hostId)
 
 # ---------- Img
 
