@@ -29,7 +29,14 @@ def init():
             admin int
         )
         """)
-        cur.execute("INSERT INTO users VALUES('0','root','root','{}',1)")
+        cur.execute("""
+            INSERT INTO users
+            SELECT '0', 'root', 'root', '{}', 1
+            WHERE NOT EXISTS (
+                SELECT 1 FROM users WHERE id = '0'
+            )
+        """)
+
         cur.execute("""
         CREATE TABLE IF NOT EXISTS perms(
             user varchar(32), 
