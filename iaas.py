@@ -294,6 +294,14 @@ def listHosts(token, query = ""):
     issuer = validateToken(token)
     return core.listHosts(query)
 
+def updateHost(token:str, hostId:str, data:dict):
+    issuer = validateToken(token)
+
+    if not issuer["admin"]: raise Exception("Unautorized")
+
+    core.updateHost(hostId, data)
+
+
 def removeHost(token, hostId): pass
 
 # ---------- Img
