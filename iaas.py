@@ -15,6 +15,7 @@ def init():
     las tablas necesarias para añadir funcionalidades avanzadas.
     Entre otras, la tabla users.
     """
+    print("iaas.init()")
     core.init()
 
     db = sqlite3.connect(FILE_DB)
@@ -93,7 +94,7 @@ def validateToken(token):
     Valida el token especificado. Si la operación tiene éxito
     devuelve la información del usuario autenticado.
     """
-    print(f"validateToken()")
+    print(f"iaas.validateToken()")
     data = cryptocode.decrypt(token, PASSWORD)
     if not data: raise Exception("Invalid token")
     data = json.loads(data)
@@ -107,7 +108,7 @@ def addUser(token, user):
     Esta operación sólo puede ser invocada por un administrador.
     Si la operación tiene éxito, devuelve el usuario creado.
     """
-    print(f"addUser()")
+    print(f"iaas.addUser()")
 
     # Comprobamos si el token es valido y los campos son correctos
     issuser = validateToken(token)
@@ -156,7 +157,7 @@ def removeUser(token, userId):
     Podría conllevar la destrucción de todos los recursos asignados
     al usuario.
     """
-    print(f"removeUser()")
+    print(f"iaas.removeUser()")
 
     # Validar token de usuario
     issuser = validateToken(token)
@@ -202,7 +203,7 @@ def updateUser(token, userId, data):
     Sólo puede ser invocada por un administrador o el propio
     usuario.
     """
-    print(f"updateUser()")
+    print(f"iaas.updateUser()")
 
     # Validar token de usuario
     issuser = validateToken(token)
@@ -264,7 +265,7 @@ def listUsers(token, query = ""):
     """
     Lista los usuarios especificados en el filtro query.
     """
-    print("listVms()")
+    print("iaas.listVms()")
 
     con = sqlite3.connect(FILE_DB)
     cur = con.cursor()
@@ -293,6 +294,7 @@ def addHost(token, host):
     Un administrador añade un host. Si es administrador, se
     invocará a core.addHost().
     """
+    print("iaas.addHost()")
     issuer = validateToken(token)
 
     if not issuer["admin"]: raise Exception("Unautorized")
@@ -306,6 +308,7 @@ def listHosts(token, query = ""):
     Cualquier usuario puede listar los hosts. Se invocará
     core.listHosts().
     """
+    print("iaas.listHosts()")
     issuer = validateToken(token)
     return core.listHosts(query)
 
@@ -314,6 +317,7 @@ def updateHost(token:str, hostId:str, data:dict):
     Un administrador actualiza un host. Si es administrador, se
     invocará core.updateHost().
     """
+    print("iaas.updateHost()")
     issuer = validateToken(token)
 
     if not issuer["admin"]: raise Exception("Unautorized")
@@ -325,6 +329,7 @@ def removeHost(token, hostId):
     Un administrador elimina un host. Si es administrador, se
     invocará a core.removeHost().
     """
+    print("iaas.removeHost()")
     issuer = validateToken(token)
 
     if not issuer["admin"]: raise Exception("Unautorized")
@@ -339,7 +344,7 @@ def addImage(token:str, url:str, img:dict) -> dict:
     core.addImage(). Al finalizar será necesario añadir un nuevo
     permiso del usuario creador sobre la imagen creada.
     """
-    print("addImage()")
+    print("iaas.addImage()")
     issuer = validateToken(token)
 
     img = core.addImage(url, img)
@@ -370,7 +375,7 @@ def removeImage(token:str, imgId:str):
     imagen. Después invocará core.removeImage(). Deberán
     eliminarse todos los permisos existentes sobre la imagen.
     """
-    print("removeImage()")
+    print("iaas.removeImage()")
     issuer = validateToken(token)
 
 
@@ -417,7 +422,7 @@ def listImages(token:str, query:str = ""):
     imágenes. Después invocará core.listImages() buscando dichas
     imágenes.
     """
-    print("listImages()")
+    print("iaas.listImages()")
     issuer = validateToken(token)
 
     images = None
@@ -455,6 +460,7 @@ def addVm(token:str, vm:dict):
     finalizar será necesario añadir un nuevo permiso del usuario
     creador sobre la vm creada.
     """
+    print("iaas.addVm()")
     issuer = validateToken(token)
 
     if not issuer["admin"]:
@@ -503,6 +509,8 @@ def listVms(token:str, query:str=""):
     será necesario obtener sus permisos sobre vms. Después
     invocará core.listVms() buscando dichas vms.
     """
+    print("iaas.listVms()")
+
 
 def startVm(token:str, vmId:str):
     """
@@ -510,6 +518,8 @@ def startVm(token:str, vmId:str):
     será necesario comprobar su permiso sobre la vm. Después
     invocará core.startVm().
     """
+    print("iaas.startVm()")
+
 
 def stopVm(token:str, vmId:str):
     """
@@ -517,6 +527,8 @@ def stopVm(token:str, vmId:str):
     necesario comprobar su permiso sobre la vm. Después
     invocará core.stopVm().
     """
+    print("iaas.stopVm()")
+
 
 def removeVm(token:str, vmId:str):
     """
@@ -525,3 +537,4 @@ def removeVm(token:str, vmId:str):
     invocará core.removeVm(). Deberán eliminarse todos los
     permisos existentes sobre la vm.
     """
+    print("iaas.removeVm()")

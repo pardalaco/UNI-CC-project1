@@ -31,7 +31,7 @@ def init():
     aseguren que NFS está instalado localmente, y que exporta el repositorio /export/iaas.
     Serán de utilidad los módulos apt, file, lineinfile y systemd. Por ejemplo:
     """
-    print("init()")
+    print("core.init()")
 
     # Create db
     db = sqlite3.connect(FILE_DB)
@@ -77,14 +77,13 @@ def init():
     )
     if r.status == "failed": raise Exception("Ansible playbook error, iaas not inicializated")
 
-
 def directory():
     """
     Debería de hacer lo opuesto a core.init(). Esta operación destruye el IaaS. Implica mucho
     trabajo de destrucción, en especial cuando el IaaS tenga múltiples hosts y estos tengan
     múltiples máquinas virtuales. Ejecutará el playbook ./plays/iaas_destroy.yaml.
     """
-    print("destroy()")
+    print("core.destroy()")
 
     # Eliminamos todos los hosts
     hosts = listHosts()
@@ -99,8 +98,6 @@ def directory():
     )
     if r.status == "failed": raise Exception("Ansible playbook error, iaas not destroyed.")
 
-
-
 # ---------------- Hosts
 def addHost(host):
     """
@@ -112,7 +109,7 @@ def addHost(host):
     Una vez el host haya sido correctamente preparado, será necesario actualizar la base de
     datos
     """
-    print("addHost()")
+    print("core.addHost()")
 
     # Check if "host" contains all information necessary
     if "addr" not in host: raise Exception("Missing host addr")
@@ -151,7 +148,7 @@ def removeHost(hostId):
     Además, si el host dispone de máquinas virtuales, habría que eliminarlas previamente.
     Si la operación tiene éxito, se actualizará la base de datos convenientemente.
     """
-    print("removeHost()")
+    print("core.removeHost()")
 
 
     hosts = listHosts(f"id='{hostId}'")
@@ -197,7 +194,7 @@ def removeHost(hostId):
 
 def updateHost(hostId:str, data:str):
     """Permite actualizar los datos del host."""
-    print("updateHost()")
+    print("core.updateHost()")
     con = sqlite3.connect(FILE_DB)
     cur = con.cursor()
 
@@ -231,7 +228,7 @@ def listHosts(query=''):
     parámetro query permitirá filtrar los resultados. Para simplificar, se podría aprovechar la
     misma sintaxis de SQL (aunque no sea muy seguro ;-)).
     """
-    print("listHosts()")
+    print("core.listHosts()")
 
     con = sqlite3.connect(FILE_DB)
     cur = con.cursor()
@@ -263,7 +260,7 @@ def addVm(vm:dict):
     Se crea el dominio con libvirt.defineXML().
     Se guardan los cambios en la base de datos.
     """
-    print("addVm()")
+    print("core.addVm()")
     
     # Comprobamos que la entrada sea correcta
     if "image" not in vm: raise Exception("Missing image")
@@ -333,7 +330,7 @@ def startVm(vmId:str):
     Se arranca el dominio con libvirt.create().
     Se guardan los cambios en la base de datos.
     """
-    print("startVm()")
+    print("core.startVm()")
     
     db = sqlite3.connect(FILE_DB)
     cur = db.cursor()
@@ -373,7 +370,7 @@ def stopVm(vmId:str):
     Se para el dominio con libvirt.shutdown().
     Se guardan los cambios en la base de datos.
     """
-    print("stopVm()")
+    print("core.stopVm()")
     
     db = sqlite3.connect(FILE_DB)
     cur = db.cursor()
@@ -414,7 +411,7 @@ def removeVm(vmId:str):
     Se elimina el disco duro virtual de la máquina virtual de /export/iaas/vms.
     Se guardan los cambios en la base de datos.
     """
-    print("removeVm()")
+    print("core.removeVm()")
     
     db = sqlite3.connect(FILE_DB)
     cur = db.cursor()
@@ -464,7 +461,7 @@ def listVms(query:str=''):
     datos local. El parámetro query permitirá filtrar los resultados. Para simplificar, se podría
     aprovechar la misma sintaxis de SQL (aunque no sea muy seguro ;-)).
     """
-    print("listVms()")
+    print("core.listVms()")
 
     con = sqlite3.connect(FILE_DB)
     cur = con.cursor()
@@ -493,7 +490,7 @@ def addImage(url, img) -> dict:
     su ubicación origen. El parámetro img es un diccionario que
     contiene al menos los campos name y desc.
     """
-    print(f"addImage({url})")
+    print(f"core.addImage({url})")
 
     if "name" not in img: raise Exception("Missing name")
     if "desc" not in img: raise Exception("Missing desc")
@@ -522,7 +519,7 @@ def saveImage(vmId, img):
     Si la vm está en ejecución, se recomienda pararla previamente,
     para evitar pérdidas de datos en la imagen.
     """
-    print(f"saveImage()")
+    print(f"core.saveImage()")
 
     if "name" not in img: raise Exception("Missing name")
     if "desc" not in img: raise Exception("Missing desc")
@@ -560,7 +557,7 @@ def removeImage(imgId:str):
     """
     Elimina la imagen especificada.
     """
-    print(f"removeImage({imgId})")
+    print(f"core.removeImage({imgId})")
 
      # Conectar a la base de datos
     db = sqlite3.connect(FILE_DB)
@@ -592,7 +589,7 @@ def listImages(query=""):
     """
     Lista las imágenes que verifican el filtro especificado en query.
     """
-    print("listImages()")
+    print("core.listImages()")
     db = sqlite3.connect(FILE_DB)
     cur = db.cursor()
     try:
