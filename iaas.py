@@ -579,8 +579,6 @@ def startVm(token:str, vmId:str):
         
     core.startVm(vmId)
 
-
-
 def stopVm(token:str, vmId:str):
     """
     Un usuario para su vm. Si el usuario no es administrador, será
@@ -669,3 +667,35 @@ def removeVm(token:str, vmId:str):
             db.close()
         
     core.removeVm(vmId)
+
+def saveVmAsImage(token:str, vmId:str, img:dict):
+    """
+    Un usuario guarda su vm como nueva imagen. Si el usuario no
+    es administrador, será necesario comprobar su permiso sobre
+    la vm. Después invocará core.saveVmAsImage(). Deberá
+    añadirse un nuevo permiso del usuario sobre la imagen creada.
+    """
+    print("iaas.saveVmAsImage()")
+    issuer = validateToken(token)
+
+    # Validamos los permisos del usuario
+    if not issuer["admin"]:
+        db = sqlite3.connect(FILE_DB)
+        cur = db.cursor()
+        try:
+            cur.execute(f"""SELECT * FROM perms WHERE 
+                        user = '{issuer['id']}' and
+                        resource = '{vmId}' and
+                        type = 'vm';
+                        """)
+            rows = cur.fetchall()
+            if rows == []: raise Exception("You do not have permissions")
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+        finally: 
+            db.commit()
+            db.close()
+    
+    img = core.saveImage(vmId, img)
+    return img

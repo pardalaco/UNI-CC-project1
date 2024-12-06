@@ -511,7 +511,7 @@ def addImage(url, img) -> dict:
     db.close()
     return img
 
-def saveImage(vmId, img):
+def saveImage(vmId, img) -> dict:
     """
     Crea una nueva imagen a partir de una vm existente. El
     parámetro vmId especifica la vm. El parámetro img es un
