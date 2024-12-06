@@ -370,6 +370,46 @@ def removeImage(token:str, imgId:str):
     imagen. Después invocará core.removeImage(). Deberán
     eliminarse todos los permisos existentes sobre la imagen.
     """
+    print("removeImage()")
+    issuer = validateToken(token)
+
+
+    if not issuer["admin"]:
+        db = sqlite3.connect(FILE_DB)
+        cur = db.cursor()
+        try:
+            cur.execute(f"""
+                        SELECT * 
+                        FROM perms
+                        WHERE user = '{issuer['id']}' AND resource = '{imgId}' AND type = 'image'
+                    """)
+            result = cur.fetchall()
+            if result == []: raise Exception(f"Error removeImage(search)")
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+        finally: 
+            db.commit()
+            db.close()
+
+    core.removeImage(imgId)
+
+    if not issuer["admin"]:
+        db = sqlite3.connect(FILE_DB)
+        cur = db.cursor()
+        try:
+            cur.execute(f"""
+                        DELETE FROM perms
+                        WHERE user = '{issuer['id']}' AND resource = '{imgId}' AND type = 'image'
+                    """)
+            if result == []: raise Exception(f"Error removeImage(delete)")
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+        finally: 
+            db.commit()
+            db.close()
+
 
 
 
