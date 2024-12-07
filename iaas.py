@@ -724,6 +724,23 @@ def saveVmAsImage(token:str, vmId:str, img:dict):
             db.close()
     
     img = core.saveImage(vmId, img)
+
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"""INSERT OR IGNORE INTO perms VALUES(
+                    '{issuer['id']}', 
+                    '{img['id']}', 
+                    'image'
+                    )
+                    """)
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    finally: 
+        db.commit()
+        db.close()
+
     return img
 
 # ----------- Compartir recursos
