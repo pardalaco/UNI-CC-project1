@@ -794,6 +794,57 @@ def unshareVm(token:str, vmId:str, userId:str):
     administrador, será necesario comprobar su permiso sobre la
     vm. Después eliminará el permiso especificado
     """
+    print("iaas.unshareVm()")
+    issuer = validateToken(token)
+
+    # Comprobamos si existe la vm
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"""SELECT 1 FROM Vms WHERE id = '{vmId}';""")
+        rows = cur.fetchall()
+        if rows == []: raise Exception("vm don't exist")
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    finally: 
+        db.commit()
+        db.close()
+
+    # Verificamos los permisos y ejecutamos la función
+    if not issuer["admin"]:
+        db = sqlite3.connect(FILE_DB)
+        cur = db.cursor()
+        try:
+            cur.execute(f"""SELECT * FROM perms WHERE 
+                        user = '{issuer['id']}' and
+                        resource = '{vmId}' and
+                        type = 'vm';
+                        """)
+            rows = cur.fetchall()
+            if rows == []: raise Exception("You do not have permissions")
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+        finally: 
+            db.commit()
+            db.close()
+
+
+
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"""DELETE FROM perms 
+                        WHERE user = '{userId}' 
+                        AND resource = '{vmId}' 
+                        AND type = 'vm'""")
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    finally: 
+        db.commit()
+        db.close()
 
 def listVmShares(token:str, vmId:str):
     """
