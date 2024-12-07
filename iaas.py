@@ -725,3 +725,47 @@ def saveVmAsImage(token:str, vmId:str, img:dict):
     
     img = core.saveImage(vmId, img)
     return img
+
+# ----------- Compartir recursos
+
+def shareVm(token:str, vmId:str, userId:str):
+    """
+    Un usuario comparte su vm. Si el usuario no es administrador,
+    será necesario comprobar su permiso sobre la vm. Después
+    creará el permiso especificado.
+    """
+
+def unshareVm(token:str, vmId:str, userId:str):
+    """
+    Un usuario deja de compartir su vm. Si el usuario no es
+    administrador, será necesario comprobar su permiso sobre la
+    vm. Después eliminará el permiso especificado
+    """
+
+def listVmShares(token:str, vmId:str):
+    """
+    Lista los permisos sobre una vm. Si el usuario no es
+    administrador, será necesario comprobar su permiso sobre la
+    vm.
+    """
+
+def shareImage(token:str, imgId:str, userId:str):
+    """
+    Un usuario comparte su imagen. Si el usuario no es
+    administrador, será necesario comprobar su permiso sobre la
+    imagen. Después creará el permiso especificado.
+    """
+
+def unshareImage(token:str, imgId:str, userId:str):
+    """
+    Un usuario deja de compartir su imagen. Si el usuario no es
+    administrador, será necesario comprobar su permiso sobre la
+    imagen. Después eliminará el permiso especificado.
+    """
+
+def listImageShares(token:str, imgId:str):
+    """
+    Lista los permisos sobre una imagen. Si el usuario no es
+    administrador, será necesario comprobar su permiso sobre la
+    imagen.
+    """
