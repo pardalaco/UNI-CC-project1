@@ -361,22 +361,22 @@ def addImage(token:str, url:str, img:dict) -> dict:
 
     img = core.addImage(url, img)
 
-    if not issuer["admin"]:
-        db = sqlite3.connect(FILE_DB)
-        cur = db.cursor()
-        try:
-            cur.execute(f"""INSERT OR IGNORE INTO perms VALUES(
-                        '{issuer['id']}', 
-                        '{img['id']}', 
-                        'image'
-                        )
-                        """)
-        except Exception as e:
-            traceback.print_exc()
-            raise e
-        finally: 
-            db.commit()
-            db.close()
+
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"""INSERT OR IGNORE INTO perms VALUES(
+                    '{issuer['id']}', 
+                    '{img['id']}', 
+                    'image'
+                    )
+                    """)
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    finally: 
+        db.commit()
+        db.close()
 
     return img
 
@@ -411,20 +411,20 @@ def removeImage(token:str, imgId:str):
 
     core.removeImage(imgId)
 
-    if not issuer["admin"]:
-        db = sqlite3.connect(FILE_DB)
-        cur = db.cursor()
-        try:
-            cur.execute(f"""
-                        DELETE FROM perms
-                        WHERE user = '{issuer['id']}' AND resource = '{imgId}' AND type = 'image';
-                    """)
-        except Exception as e:
-            traceback.print_exc()
-            raise e
-        finally: 
-            db.commit()
-            db.close()
+
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"""
+                    DELETE FROM perms
+                    WHERE user = '{issuer['id']}' AND resource = '{imgId}' AND type = 'image';
+                """)
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    finally: 
+        db.commit()
+        db.close()
 
 def listImages(token:str, query:str = ""):
     """
@@ -496,22 +496,22 @@ def addVm(token:str, vm:dict):
 
     vm = core.addVm(vm)
 
-    if not issuer["admin"]:
-        db = sqlite3.connect(FILE_DB)
-        cur = db.cursor()
-        try:
-            cur.execute(f"""INSERT OR IGNORE INTO perms VALUES(
-                        '{issuer['id']}', 
-                        '{vm['id']}', 
-                        'vm'
-                        )
-                        """)
-        except Exception as e:
-            traceback.print_exc()
-            raise e
-        finally: 
-            db.commit()
-            db.close()
+
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"""INSERT OR IGNORE INTO perms VALUES(
+                    '{issuer['id']}', 
+                    '{vm['id']}', 
+                    'vm'
+                    )
+                    """)
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    finally: 
+        db.commit()
+        db.close()
     
     return vm
 
@@ -679,20 +679,20 @@ def removeVm(token:str, vmId:str):
         
     core.removeVm(vmId)
 
-    if not issuer["admin"]:
-        db = sqlite3.connect(FILE_DB)
-        cur = db.cursor()
-        try:
-            cur.execute(f"""
-                        DELETE FROM perms
-                        WHERE user = '{issuer['id']}' AND resource = '{vmId}' AND type = 'vm';
-                    """)
-        except Exception as e:
-            traceback.print_exc()
-            raise e
-        finally: 
-            db.commit()
-            db.close()
+
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"""
+                    DELETE FROM perms
+                    WHERE user = '{issuer['id']}' AND resource = '{vmId}' AND type = 'vm';
+                """)
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    finally: 
+        db.commit()
+        db.close()
 
 def saveVmAsImage(token:str, vmId:str, img:dict):
     """
