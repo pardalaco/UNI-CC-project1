@@ -852,6 +852,52 @@ def listVmShares(token:str, vmId:str):
     administrador, será necesario comprobar su permiso sobre la
     vm.
     """
+    print("iaas.listVmShare()")
+    issuer = validateToken(token)
+
+    # Verificamos los permisos y ejecutamos la función
+    if not issuer["admin"]:
+        db = sqlite3.connect(FILE_DB)
+        cur = db.cursor()
+        try:
+            cur.execute(f"""SELECT * FROM perms WHERE 
+                        user = '{issuer['id']}' and
+                        resource = '{vmId}' and
+                        type = 'vm';
+                        """)
+            rows = cur.fetchall()
+            if rows == []: raise Exception("You do not have permissions")
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+        finally: 
+            db.commit()
+            db.close()
+    
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"""SELECT * FROM perms WHERE 
+                    resource = '{vmId}' and
+                    type = 'vm';
+                    """)
+        rows = cur.fetchall()
+        perms = []
+        for row in rows:
+            perm = {
+                "user": row[0],
+                "resource": row[1],
+                "type": row[2],
+            }
+            perms.append(perm)
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    finally: 
+        db.commit()
+        db.close()
+    
+    return perms
 
 def shareImage(token:str, imgId:str, userId:str):
     """
