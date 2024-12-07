@@ -964,6 +964,55 @@ def unshareImage(token:str, imgId:str, userId:str):
     administrador, será necesario comprobar su permiso sobre la
     imagen. Después eliminará el permiso especificado.
     """
+    print("iaas.shareImage()")
+    issuer = validateToken(token)
+
+    # Comprobamos si existe la imagen
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"""SELECT 1 FROM images WHERE id = '{imgId}';""")
+        rows = cur.fetchall()
+        if rows == []: raise Exception("Img don't exist")
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    finally: 
+        db.commit()
+        db.close()
+
+    # Control de acceso
+    if not issuer["admin"]:
+        db = sqlite3.connect(FILE_DB)
+        cur = db.cursor()
+        try:
+            cur.execute(f"""
+                        SELECT * 
+                        FROM perms
+                        WHERE user = '{issuer['id']}' AND resource = '{imgId}' AND type = 'image'
+                    """)
+            result = cur.fetchall()
+            if result == []: raise Exception(f"Error shareImage(search)")
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+        finally: 
+            db.commit()
+            db.close()
+
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"""DELETE FROM perms 
+                        WHERE user = '{userId}' 
+                        AND resource = '{imgId}' 
+                        AND type = 'image'""")
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    finally: 
+        db.commit()
+        db.close()
 
 def listImageShares(token:str, imgId:str):
     """
