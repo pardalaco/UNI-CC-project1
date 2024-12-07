@@ -174,40 +174,82 @@ def removeUser(token, userId):
         rows = cur.fetchone()
         if not rows:
             raise Exception("User not found")
-        
-        # Crear el diccionario del usuario
-        user = {
-            "id": rows[0],   
-            "email": rows[1],
-            "password": rows[2],
-            "admin": rows[4]
-        }
-
-        # Destrucción de los recursos asignados al usuario
-        userToken = login(user['email'], user['password'])
-        #Eliminamos las imagenes
-        images = listImages(userToken)
-        for image in images:
-            removeImage(userToken, image['id'])
-        
-        # Eliminamos las vms
-        vms = listVms(userToken)
-        for vm in vms:
-            removeVm(userToken, vm['id'])
-
-
-        # Eliminar el usuario de la base de datos
-        cur.execute(f"DELETE FROM users WHERE id = '{userId}'")
-        db.commit()
-
-        return user
-
     except Exception as e:
         traceback.print_exc()
         raise e
-    
     finally:
-        db.close()
+        db.close()        
+        
+    # Crear el diccionario del usuario
+    user = {
+        "id": rows[0],   
+        "email": rows[1],
+        "password": rows[2],
+        "admin": rows[4]
+    }
+
+    # Destrucción de los recursos asignados al usuario
+    userToken = login(user['email'], user['password'])
+    #Eliminamos las imagenes
+    images = listImages(userToken)
+    for image in images:
+        share = listImageShares(userToken, image['id'])
+        print(share)
+        if len(share) == 1:
+            removeImage(userToken, image['id'])
+        else:
+            db = sqlite3.connect(FILE_DB)
+            cur = db.cursor()
+            try:
+                cur.execute(f"""
+                            DELETE FROM perms
+                            WHERE user = '{userId}' AND resource = '{image['id']}' AND type = 'image';
+                        """)
+                db.commit()
+            except Exception as e:
+                traceback.print_exc()
+                raise e
+            finally:
+                db.close()        
+
+    
+    # Eliminamos las vms
+    vms = listVms(userToken)
+    for vm in vms:
+        share = listVmShares(userToken, vm['id'])
+        if len(share) == 1:
+            removeVm(userToken, vm['id'])
+        else:
+            db = sqlite3.connect(FILE_DB)
+            cur = db.cursor()
+            try:
+                print(f"DELETE FROM perms WHERE user = '{userId}' AND resource = '{vm['id']}' AND type = 'vm';")
+                cur.execute(f"""
+                            DELETE FROM perms
+                            WHERE user = '{userId}' AND resource = '{vm['id']}' AND type = 'vm';
+                        """)
+                db.commit()
+            except Exception as e:
+                traceback.print_exc()
+                raise e
+            finally:
+                db.close()        
+
+
+    # Eliminar el usuario de la base de datos
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"DELETE FROM users WHERE id = '{userId}'")
+        db.commit()
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    finally:
+        db.close()        
+    
+    return user
+
 
 def updateUser(token, userId, data):
     """
