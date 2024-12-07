@@ -474,6 +474,7 @@ def addVm(token:str, vm:dict):
     print("iaas.addVm()")
     issuer = validateToken(token)
 
+    # Comprobar permisos sobre la imagen
     if not issuer["admin"]:
         db = sqlite3.connect(FILE_DB)
         cur = db.cursor()
@@ -544,7 +545,6 @@ def listVms(token:str, query:str=""):
             db.close()
     
     return vms
-
 
 def startVm(token:str, vmId:str):
     """
@@ -734,6 +734,59 @@ def shareVm(token:str, vmId:str, userId:str):
     será necesario comprobar su permiso sobre la vm. Después
     creará el permiso especificado.
     """
+    print("iaas.shareVm()")
+    issuer = validateToken(token)
+
+    # Comprobamos si existe la vm
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"""SELECT 1 FROM Vms WHERE id = '{vmId}';""")
+        rows = cur.fetchall()
+        if rows == []: raise Exception("vm don't exist")
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    finally: 
+        db.commit()
+        db.close()
+
+    # Verificamos los permisos y ejecutamos la función
+    if not issuer["admin"]:
+        db = sqlite3.connect(FILE_DB)
+        cur = db.cursor()
+        try:
+            cur.execute(f"""SELECT * FROM perms WHERE 
+                        user = '{issuer['id']}' and
+                        resource = '{vmId}' and
+                        type = 'vm';
+                        """)
+            rows = cur.fetchall()
+            if rows == []: raise Exception("You do not have permissions")
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+        finally: 
+            db.commit()
+            db.close()
+
+
+
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"""INSERT OR IGNORE INTO perms VALUES(
+                    '{userId}', 
+                    '{vmId}', 
+                    'vm'
+                    )
+                    """)
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    finally: 
+        db.commit()
+        db.close()
 
 def unshareVm(token:str, vmId:str, userId:str):
     """
