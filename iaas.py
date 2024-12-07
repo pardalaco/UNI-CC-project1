@@ -957,7 +957,6 @@ def shareImage(token:str, imgId:str, userId:str):
         db.commit()
         db.close()
 
-
 def unshareImage(token:str, imgId:str, userId:str):
     """
     Un usuario deja de compartir su imagen. Si el usuario no es
@@ -1020,3 +1019,63 @@ def listImageShares(token:str, imgId:str):
     administrador, será necesario comprobar su permiso sobre la
     imagen.
     """
+    print("iaas.shareImage()")
+    issuer = validateToken(token)
+
+    # Comprobamos si existe la imagen
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"""SELECT 1 FROM images WHERE id = '{imgId}';""")
+        rows = cur.fetchall()
+        if rows == []: raise Exception("Img don't exist")
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    finally: 
+        db.commit()
+        db.close()
+
+    # Control de acceso
+    if not issuer["admin"]:
+        db = sqlite3.connect(FILE_DB)
+        cur = db.cursor()
+        try:
+            cur.execute(f"""
+                        SELECT * 
+                        FROM perms
+                        WHERE user = '{issuer['id']}' AND resource = '{imgId}' AND type = 'image'
+                    """)
+            result = cur.fetchall()
+            if result == []: raise Exception(f"Error shareImage(search)")
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+        finally: 
+            db.commit()
+            db.close()
+
+    db = sqlite3.connect(FILE_DB)
+    cur = db.cursor()
+    try:
+        cur.execute(f"""SELECT * FROM perms WHERE 
+                    resource = '{imgId}' and
+                    type = 'image';
+                    """)
+        rows = cur.fetchall()
+        images = []
+        for row in rows:
+            perm = {
+                "user": row[0],
+                "resource": row[1],
+                "type": row[2],
+            }
+            images.append(perm)
+    except Exception as e:
+        traceback.print_exc()
+        raise e
+    finally: 
+        db.commit()
+        db.close()
+    
+    return images
