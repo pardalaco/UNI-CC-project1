@@ -339,8 +339,56 @@ def unshareVm(vmId, userId):
         return {"error": str(e)}, 400
 
 
-def shareImage(token:str, imgId:str, userId:str): pass
+# ---------- Image Shares
 
-def unshareImage(token:str, imgId:str, userId:str): pass
+@app.route("/iaas/images/<imgId>/shares", methods=["GET"])
+def listImageShares(imgId):
+    """
+    Lista los permisos sobre una imagen.
+    Cabeceras: Authorization: token
+    Resultado (JSON): [perm]
+    """
+    print("rest.listImageShares()")
+    token = request.headers.get("Authorization")
+    try:
+        shares = iaas.listImageShares(token, imgId)
+        return shares, 200
+    except Exception as e:
+        return {"error": str(e)}, 400
 
-def listImageShares(token:str, imgId:str): pass
+
+@app.route("/iaas/images/<imgId>/shares", methods=["POST"])
+def shareImage(imgId):
+    """
+    Crea un permiso sobre una imagen.
+    Cabeceras: Authorization: token
+    Contenido (JSON): {user}
+    Resultado (JSON): permiso creado
+    """
+    print("rest.shareImage()")
+    token = request.headers.get("Authorization")
+    data = request.get_json()
+    userId = data.get("user")
+    if not userId:
+        return {"error": "El campo 'user' es obligatorio."}, 400
+    try:
+        permission = iaas.shareImage(token, imgId, userId)
+        return permission, 201
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+
+@app.route("/iaas/images/<imgId>/shares/<userId>", methods=["DELETE"])
+def unshareImage(imgId, userId):
+    """
+    Elimina un permiso sobre una imagen.
+    Cabeceras: Authorization: token
+    Resultado: mensaje de éxito o error
+    """
+    print("rest.unshareImage()")
+    token = request.headers.get("Authorization")
+    try:
+        iaas.unshareImage(token, imgId, userId)
+        return {"success": True}, 200
+    except Exception as e:
+        return {"error": str(e)}, 400
