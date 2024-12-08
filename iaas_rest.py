@@ -111,7 +111,7 @@ def listHosts(token, query=""):
     # Aquí deberías agregar la lógica para obtener los hosts
 
 @app.route("/iaas/hosts/<hostId>", methods=["PUT"])
-def updateHost(token: str, hostId: str, data: dict):
+def updateHost(hostId):
     """
     Actualiza un host.
     Cabeceras: Authorization: token
@@ -119,7 +119,13 @@ def updateHost(token: str, hostId: str, data: dict):
     Resultado (JSON): host actualizado
     """
     print("rest.updateHost()")
-    # Lógica para actualizar el host
+    token = request.headers.get("Authorization")
+    data = request.get_json()
+    try:
+        host = iaas.updateHost(token, hostId, data)
+        return host, 200
+    except Exception as e:
+        return {"error": e}, 400
 
 @app.route("/iaas/hosts/<hostId>", methods=["DELETE"])
 def removeHost(hostId):
