@@ -122,7 +122,7 @@ def updateHost(token: str, hostId: str, data: dict):
     # Lógica para actualizar el host
 
 @app.route("/iaas/hosts/<hostId>", methods=["DELETE"])
-def removeHost(token, hostId):
+def removeHost(hostId):
     """
     Elimina un host.
     Cabeceras: Authorization: token
@@ -130,7 +130,12 @@ def removeHost(token, hostId):
     """
     print("rest.removeHost()")
     # Lógica para eliminar un host
-
+    token = request.headers.get("Authorization")
+    try:
+        iaas.removeHost(token, hostId)
+        return {"succes": "True"}, 200
+    except Exception as e:
+        return {"error": e}, 400
 
 # ---------- Img
 
