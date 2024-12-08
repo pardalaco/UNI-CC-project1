@@ -85,7 +85,7 @@ def listUsers():
 # ----------- Hosts
 
 @app.route("/iaas/hosts", methods=["POST"])
-def addHost(token, host):
+def addHost():
     """
     Crea un host.
     Cabeceras: Authorization: token
@@ -93,7 +93,11 @@ def addHost(token, host):
     Resultado (JSON): host
     """
     print("rest.addHost()")
-    # Lógica para agregar un nuevo host
+    host = request.get_json()
+    token = request.headers.get("Authorization")
+    return iaas.addHost(token, host)
+
+
 
 @app.route("/iaas/hosts", methods=["GET"])
 def listHosts(token, query=""):
