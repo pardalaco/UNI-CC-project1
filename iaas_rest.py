@@ -241,6 +241,27 @@ def listVms():
     except Exception as e:
         return {"error": str(e)}, 400
 
+@app.route("/iaas/vms/<vmId>", methods=["PUT"])
+def updateVm(vmId):
+    """
+    Actualiza una máquina virtual (VM).
+    Cabeceras: Authorization: token
+    Contenido (JSON): data
+    Resultado (JSON): vm actualizada
+    """
+    print("rest.updateVm()")
+    token = request.headers.get("Authorization")
+    data = request.get_json()
+    try:
+        updated_vm = None
+        if data["state"] == "start": 
+            updated_vm = iaas.startVm(token, vmId)
+        elif data["state"] == "stop": 
+            updated_vm = iaas.stopVm(token, vmId)
+        return updated_vm, 200
+    except Exception as e:
+        return {"error": str(e)}, 400
+
 
 @app.route("/iaas/vms/<vmId>", methods=["DELETE"])
 def removeVm(vmId):
