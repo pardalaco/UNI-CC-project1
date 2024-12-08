@@ -205,15 +205,62 @@ def removeImage(imgId):
     
 # ---------- Vms
 
-def addVm(token:str, vm:dict): pass
 
-def listVms(token:str, query:str=""): pass
+@app.route("/iaas/vms", methods=["POST"])
+def addVm():
+    """
+    Crea una máquina virtual (VM).
+    Cabeceras: Authorization: token
+    Contenido (JSON): vm
+    Resultado (JSON): vm
+    """
+    print("rest.addVm()")
+    token = request.headers.get("Authorization")
+    vm = request.get_json()
+    try:
+        new_vm = iaas.addVm(token, vm)
+        return new_vm, 201
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+
+@app.route("/iaas/vms", methods=["GET"])
+def listVms():
+    """
+    Lista las máquinas virtuales (VMs).
+    Cabeceras: Authorization: token
+    Parámetros: query (opcional)
+    Resultado (JSON): [vm]
+    """
+    print("rest.listVms()")
+    token = request.headers.get("Authorization")
+    query = request.args.get("query", "")
+    try:
+        vms = iaas.listVms(token, query)
+        return vms, 200
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+
+@app.route("/iaas/vms/<vmId>", methods=["DELETE"])
+def removeVm(vmId):
+    """
+    Elimina una máquina virtual (VM).
+    Cabeceras: Authorization: token
+    Resultado: mensaje de éxito o error
+    """
+    print("rest.removeVm()")
+    token = request.headers.get("Authorization")
+    try:
+        iaas.removeVm(token, vmId)
+        return {"success": True}, 200
+    except Exception as e:
+        return {"error": str(e)}, 400
+
 
 def startVm(token:str, vmId:str): pass
 
 def stopVm(token:str, vmId:str): pass
-
-def removeVm(token:str, vmId:str): pass
 
 def saveVmAsImage(token:str, vmId:str, img:dict): pass
 
