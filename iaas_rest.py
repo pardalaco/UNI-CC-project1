@@ -1,5 +1,6 @@
 import iaas
 from flask import Flask, request, jsonify
+import json
 
 app = Flask(__name__)
 
@@ -69,6 +70,15 @@ def listUsers():
     Parámetros: query
     Resultado (JSON): [user]
     """
+    print("rest.listUsers()")
+    token = request.headers.get("Authorization")
+    query = request.args.get("query", "")
+    try:
+        users = iaas.listUsers(token, query)
+        print(users)
+        return users, 200
+    except Exception as e:
+        return {"error": e}, 400
 
 
 
