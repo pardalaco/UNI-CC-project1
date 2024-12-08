@@ -201,6 +201,16 @@ def removeImage(imgId):
     except Exception as e:
         return {"error": str(e)}, 400
 
+@app.route("/iaas/images/<vmId>", methods=["PUT"])
+def saveVmAsImage(vmId):
+    print("rest.saveVmAsImage()")
+    token = request.headers.get("Authorization")
+    img = request.get_json()
+    try:
+        img = iaas.saveVmAsImage(token, vmId, img['image'])
+        return img, 200
+    except Exception as e:
+        return {"error": str(e)}, 400
 
     
 # ---------- Vms
@@ -278,7 +288,6 @@ def removeVm(vmId):
     except Exception as e:
         return {"error": str(e)}, 400
 
-def saveVmAsImage(token:str, vmId:str, img:dict): pass
 
 # ----------- Compartir recursos
 
