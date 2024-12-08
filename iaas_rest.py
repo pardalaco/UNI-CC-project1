@@ -311,12 +311,14 @@ def shareVm(vmId):
     print("rest.shareVm()")
     token = request.headers.get("Authorization")
     data = request.get_json()
-    userId = data.get("user")
+    user = data["user"]
+    user = iaas.listUsers(token, f"email = '{user}'")
+    userId = user[0]["id"]
     if not userId:
         return {"error": "El campo 'user' es obligatorio."}, 400
     try:
-        permission = iaas.shareVm(token, vmId, userId)
-        return permission, 201
+        iaas.shareVm(token, vmId, userId)
+        return {"success": True}, 200
     except Exception as e:
         return {"error": str(e)}, 400
 
