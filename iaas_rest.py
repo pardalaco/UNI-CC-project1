@@ -75,7 +75,6 @@ def listUsers():
     query = request.args.get("query", "")
     try:
         users = iaas.listUsers(token, query)
-        print(users)
         return users, 200
     except Exception as e:
         return {"error": e}, 400
@@ -100,7 +99,7 @@ def addHost():
 
 
 @app.route("/iaas/hosts", methods=["GET"])
-def listHosts(token, query=""):
+def listHosts(query=""):
     """
     Lista los hosts.
     Cabeceras: Authorization: token
@@ -108,7 +107,13 @@ def listHosts(token, query=""):
     Resultado (JSON): [host]
     """
     print("rest.listHosts()")
-    # Aquí deberías agregar la lógica para obtener los hosts
+    token = request.headers.get("Authorization")
+    query = request.args.get("query", "")
+    try:
+        hosts = iaas.listHosts(token, query)
+        return hosts, 200
+    except Exception as e:
+        return {"error": e}, 400
 
 @app.route("/iaas/hosts/<hostId>", methods=["PUT"])
 def updateHost(hostId):
