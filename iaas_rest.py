@@ -278,20 +278,64 @@ def removeVm(vmId):
     except Exception as e:
         return {"error": str(e)}, 400
 
-
-def startVm(token:str, vmId:str): pass
-
-def stopVm(token:str, vmId:str): pass
-
 def saveVmAsImage(token:str, vmId:str, img:dict): pass
 
 # ----------- Compartir recursos
 
-def shareVm(token:str, vmId:str, userId:str): pass
+# ---------- VM Shares
 
-def unshareVm(token:str, vmId:str, userId:str): pass
+@app.route("/iaas/vms/<vmId>/shares", methods=["GET"])
+def listVmShares(vmId):
+    """
+    Lista los permisos sobre una máquina virtual (VM).
+    Cabeceras: Authorization: token
+    Resultado (JSON): [perm]
+    """
+    print("rest.listVmShares()")
+    token = request.headers.get("Authorization")
+    try:
+        shares = iaas.listVmShares(token, vmId)
+        return shares, 200
+    except Exception as e:
+        return {"error": str(e)}, 400
 
-def listVmShares(token:str, vmId:str): pass
+
+@app.route("/iaas/vms/<vmId>/shares", methods=["POST"])
+def shareVm(vmId):
+    """
+    Crea un permiso sobre una máquina virtual (VM).
+    Cabeceras: Authorization: token
+    Contenido (JSON): {user}
+    Resultado (JSON): permiso creado
+    """
+    print("rest.shareVm()")
+    token = request.headers.get("Authorization")
+    data = request.get_json()
+    userId = data.get("user")
+    if not userId:
+        return {"error": "El campo 'user' es obligatorio."}, 400
+    try:
+        permission = iaas.shareVm(token, vmId, userId)
+        return permission, 201
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+
+@app.route("/iaas/vms/<vmId>/shares/<userId>", methods=["DELETE"])
+def unshareVm(vmId, userId):
+    """
+    Elimina un permiso sobre una máquina virtual (VM).
+    Cabeceras: Authorization: token
+    Resultado: mensaje de éxito o error
+    """
+    print("rest.unshareVm()")
+    token = request.headers.get("Authorization")
+    try:
+        iaas.unshareVm(token, vmId, userId)
+        return {"success": True}, 200
+    except Exception as e:
+        return {"error": str(e)}, 400
+
 
 def shareImage(token:str, imgId:str, userId:str): pass
 
