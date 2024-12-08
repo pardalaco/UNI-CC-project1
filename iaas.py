@@ -319,7 +319,7 @@ def listUsers(token, query = ""):
     """
     Lista los usuarios especificados en el filtro query.
     """
-    print("iaas.listVms()")
+    print("iaas.listusers()")
 
     con = sqlite3.connect(FILE_DB)
     cur = con.cursor()
@@ -937,6 +937,7 @@ def listVmShares(token:str, vmId:str):
     cur = db.cursor()
     try:
         cur.execute(f"""SELECT * FROM perms WHERE 
+                    user = '{issuer['id']}' and
                     resource = '{vmId}' and
                     type = 'vm';
                     """)
