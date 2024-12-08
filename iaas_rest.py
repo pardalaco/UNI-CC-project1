@@ -30,16 +30,22 @@ def addUser():
     return iaas.addUser(token, user)
 
 @app.route("/iaas/users/<userId>", methods=["DELETE"])
-def remove_user(userId):
+def removeUser(userId):
     """
     Elimina un usuario.
     Contenido (JSON): {token}
     """
     print("rest.removeUser()")
+    token = request.headers.get("Authorization")
+    try:
+        user = iaas.removeUser(token, userId)
+        return user, 200
+    except Exception as e:
+        return {"error": e}, 400
 
 
 @app.route("/iaas/users/<userId>", methods=["PUT"])
-def update_user(userId):
+def updateUser(userId):
     """
     Actualiza un usuario.
     Contenido (JSON): {token, data}
@@ -47,7 +53,7 @@ def update_user(userId):
     print("rest.updateUser()")
 
 @app.route("/iaas/users", methods=["GET"])
-def list_users():
+def listUsers():
     """
     Lista los usuarios.
     Cabeceras: Authorization: token
