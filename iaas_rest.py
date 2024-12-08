@@ -51,6 +51,15 @@ def updateUser(userId):
     Contenido (JSON): {token, data}
     """
     print("rest.updateUser()")
+    token = request.headers.get("Authorization")
+    data = request.get_json()
+    try:
+        user = iaas.updateUser(token, userId, data)
+        return user, 200
+    except Exception as e:
+        return {"error": e}, 400
+
+
 
 @app.route("/iaas/users", methods=["GET"])
 def listUsers():
