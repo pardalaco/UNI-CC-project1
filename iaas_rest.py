@@ -148,13 +148,59 @@ def removeHost(hostId):
     except Exception as e:
         return {"error": e}, 400
 
-# ---------- Img
+# ---------- Images
 
-def addImage(token:str, url:str, img:dict) -> dict: pass
+@app.route("/iaas/images", methods=["POST"])
+def addImage():
+    """
+    Crea una imagen.
+    Cabeceras: Authorization: token
+    Contenido (JSON): image
+    Resultado (JSON): image
+    """
+    print("rest.addImage()")
+    token = request.headers.get("Authorization")
+    img = request.get_json()
+    try:
+        image = iaas.addImage(token, img)
+        return image, 201
+    except Exception as e:
+        return {"error": str(e)}, 400
 
-def removeImage(token:str, imgId:str): pass
 
-def listImages(token:str, query:str = ""): pass
+@app.route("/iaas/images", methods=["GET"])
+def listImages():
+    """
+    Lista las imágenes.
+    Cabeceras: Authorization: token
+    Parámetros: query (opcional)
+    Resultado (JSON): [image]
+    """
+    print("rest.listImages()")
+    token = request.headers.get("Authorization")
+    query = request.args.get("query", "")
+    try:
+        images = iaas.listImages(token, query)
+        return images, 200
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+
+@app.route("/iaas/images/<imgId>", methods=["DELETE"])
+def removeImage(imgId):
+    """
+    Elimina una imagen.
+    Cabeceras: Authorization: token
+    Resultado: mensaje de éxito o error
+    """
+    print("rest.removeImage()")
+    token = request.headers.get("Authorization")
+    try:
+        iaas.removeImage(token, imgId)
+        return {"success": True}, 200
+    except Exception as e:
+        return {"error": str(e)}, 400
+
 
     
 # ---------- Vms
