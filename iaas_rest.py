@@ -162,7 +162,7 @@ def addImage():
     token = request.headers.get("Authorization")
     img = request.get_json()
     try:
-        image = iaas.addImage(token, img)
+        image = iaas.addImage(token, img['url'], img['img'])
         return image, 201
     except Exception as e:
         return {"error": str(e)}, 400
