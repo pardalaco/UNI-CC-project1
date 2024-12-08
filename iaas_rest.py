@@ -84,13 +84,49 @@ def listUsers():
 
 # ----------- Hosts
 
-def addHost(token, host):pass
+@app.route("/iaas/hosts", methods=["POST"])
+def addHost(token, host):
+    """
+    Crea un host.
+    Cabeceras: Authorization: token
+    Contenido (JSON): host
+    Resultado (JSON): host
+    """
+    print("rest.addHost()")
+    # Lógica para agregar un nuevo host
 
-def listHosts(token, query = ""): pass
+@app.route("/iaas/hosts", methods=["GET"])
+def listHosts(token, query=""):
+    """
+    Lista los hosts.
+    Cabeceras: Authorization: token
+    Parámetros: query (opcional)
+    Resultado (JSON): [host]
+    """
+    print("rest.listHosts()")
+    # Aquí deberías agregar la lógica para obtener los hosts
 
-def updateHost(token:str, hostId:str, data:dict): pass
+@app.route("/iaas/hosts/<hostId>", methods=["PUT"])
+def updateHost(token: str, hostId: str, data: dict):
+    """
+    Actualiza un host.
+    Cabeceras: Authorization: token
+    Contenido (JSON): data
+    Resultado (JSON): host actualizado
+    """
+    print("rest.updateHost()")
+    # Lógica para actualizar el host
 
-def removeHost(token, hostId): pass
+@app.route("/iaas/hosts/<hostId>", methods=["DELETE"])
+def removeHost(token, hostId):
+    """
+    Elimina un host.
+    Cabeceras: Authorization: token
+    Resultado: mensaje de éxito o error
+    """
+    print("rest.removeHost()")
+    # Lógica para eliminar un host
+
 
 # ---------- Img
 
