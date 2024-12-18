@@ -127,8 +127,8 @@ def updateHost(hostId):
     token = request.headers.get("Authorization")
     data = request.get_json()
     try:
-        host = iaas.updateHost(token, hostId, data)
-        return host, 200
+        iaas.updateHost(token, hostId, data)
+        return {}, 200
     except Exception as e:
         return {"error": e}, 400
 

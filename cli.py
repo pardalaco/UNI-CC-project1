@@ -35,6 +35,7 @@ Avaiable commands:
     - login <email> <password>
     - host ls [<query>]
     - host add <addr> <user> <password>
+    - host update <hostId> <addr> <user> <password>
     - host rm <hostId>
     - user list [<query>]
     - user add <email> <password>
@@ -119,7 +120,7 @@ while True:
                 else:
                     print("Adding host...")
                     host = requests.post("http://localhost:5000/iaas/hosts", 
-                    headers={"Authorization": f"'{user[1]}'"}, 
+                        headers={"Authorization": f"'{user[1]}'"}, 
                     json={"addr":cmd[2], "user":cmd[3], "password":cmd[4]})
                     if host.status_code >= 200 and host.status_code < 300:
                         print("Host added successfully")
@@ -132,11 +133,28 @@ while True:
                 else: 
                     print("Removing host...")
                     host = requests.delete(f"http://localhost:5000/iaas/hosts/{cmd[2]}", 
-                    headers={"Authorization": f"'{user[1]}'"})
+                        headers={"Authorization": f"'{user[1]}'"})
                     if host.status_code >= 200 and host.status_code < 300:
                         print("Host removed successfully")
                     else:
                         print(f"{Fore.RED}An error occurred while removing the host.{Style.RESET_ALL}")
+            
+            elif cmd[1] == "update":
+                if len(cmd) != 6:
+                    print("- host update <hostId> <addr> <user> <password>")
+                else: 
+                    print("Removing host...")
+                    host = requests.put(f"http://localhost:5000/iaas/hosts/{cmd[2]}", 
+                            headers={"Authorization": f"'{user[1]}'"}, 
+                            json={"addr":cmd[3], "user":cmd[4], "password":cmd[5]})
+                    
+                    if host.status_code >= 200 and host.status_code < 300:
+                        print("Host updated successfully")
+                    else:
+                        print(host.status_code)
+                        print(f"{Fore.RED}An error occurred while updated the host.{Style.RESET_ALL}")
+            
+            # else: help_host()
 
 
     elif cmd[0] == "user":
