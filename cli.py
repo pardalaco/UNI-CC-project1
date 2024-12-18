@@ -113,6 +113,9 @@ while True:
         if len(cmd) > 1:
             if cmd[1] == "ls":
                 query_value = "" # FALTA LA QUERY
+                if len(cmd) > 2:
+                    query_value = ' '.join(cmd[2:])
+
                 listHosts = requests.get(f"http://localhost:5000/iaas/hosts?query={query_value}", 
                   headers={"Authorization": f"{user[1]}"}, 
                   json={})
