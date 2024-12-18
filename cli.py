@@ -44,95 +44,98 @@ Avaiable commands:
     - vm unshare <vmId> <userId>
           """)
 
+def login():
+    while True:
+        cmd = input("shell> ").split()
+        if len(cmd) == 0:
+            pass
+        elif cmd[0] == "login":
+            request = requests.post("http://localhost:5000/iaas/sessions", json={"email": cmd[1], "password": cmd[2]})
+            if request.status_code == 500:
+                print(f"{Fore.RED}Loggin error, try again.{Style.RESET_ALL}")
+            else: 
+                return (cmd[1], request.text)
+
+        elif cmd[0] == "exit":
+            print("By")
+            exit(0)
+        else:
+            help_login()
+
+
+
+
 # Comprobamos que existe el iaas, de lo contrario lo inicializamos
 if not os.path.exists("./iaas.db"):
     iaas.init()
 
-
-user = ()
+user = login()
 while True:
-    cmd = input("virtual> ").split()
-    if len(cmd) == 0:
-        pass
+    cmd = input(f"{user[0]}> ").split()
+    if len(cmd) == 0: pass
     elif cmd[0] == "login":
-        request = requests.post("http://localhost:5000/iaas/sessions", json={"email": cmd[1], "password": cmd[2]})
-        if request.status_code == 500:
-            print(f"{Fore.RED}Loggin error, try again.{Style.RESET_ALL}")
-        else: 
-            user = (cmd[1], request.text)
-            while True:
-                cmd = input(f"{user[0]}> ").split()
-                if len(cmd) == 0: pass
-                elif cmd[0] == "login":
-                    pass
-
-                elif cmd[0] == "exit":
-                    print("By")
-                    exit(0)
-
-                elif cmd[0] == "whoami":
-                    pass
-
-                elif cmd[0] == "host":
-                    if len(cmd) > 1:
-                        if cmd[1] == "ls":
-                            pass
-                        elif cmd[1] == "add":
-                            pass
-                        elif cmd[1] == "rm":
-                            pass
-
-                elif cmd[0] == "user":
-                    if len(cmd) > 1:
-                        if cmd[1] == "list":
-                            pass
-                        elif cmd[1] == "add":
-                            pass
-                        elif cmd[1] == "rm":
-                            pass
-
-                elif cmd[0] == "image":
-                    if len(cmd) > 1:
-                        if cmd[1] == "ls":
-                            pass
-                        elif cmd[1] == "add":
-                            pass
-                        elif cmd[1] == "rm":
-                            pass
-                        elif cmd[1] == "shares":
-                            pass
-                        elif cmd[1] == "share":
-                            pass
-                        elif cmd[1] == "unshare":
-                            pass
-
-                elif cmd[0] == "vm":
-                    if len(cmd) > 1:
-                        if cmd[1] == "ls":
-                            pass
-                        elif cmd[1] == "add":
-                            pass
-                        elif cmd[1] == "start":
-                            pass
-                        elif cmd[1] == "stop":
-                            pass
-                        elif cmd[1] == "rm":
-                            pass
-                        elif cmd[1] == "save":
-                            pass
-                        elif cmd[1] == "shares":
-                            pass
-                        elif cmd[1] == "share":
-                            pass
-                        elif cmd[1] == "unshare":
-                            pass
-
-                else:
-                    print("Unknown command. Type 'help' for a list of commands.")
+        pass
 
     elif cmd[0] == "exit":
         print("By")
         exit(0)
-    else:
-        help_login()
 
+    elif cmd[0] == "whoami":
+        pass
+
+    elif cmd[0] == "host":
+        if len(cmd) > 1:
+            if cmd[1] == "ls":
+                pass
+            elif cmd[1] == "add":
+                pass
+            elif cmd[1] == "rm":
+                pass
+
+    elif cmd[0] == "user":
+        if len(cmd) > 1:
+            if cmd[1] == "list":
+                pass
+            elif cmd[1] == "add":
+                pass
+            elif cmd[1] == "rm":
+                pass
+
+    elif cmd[0] == "image":
+        if len(cmd) > 1:
+            if cmd[1] == "ls":
+                pass
+            elif cmd[1] == "add":
+                pass
+            elif cmd[1] == "rm":
+                pass
+            elif cmd[1] == "shares":
+                pass
+            elif cmd[1] == "share":
+                pass
+            elif cmd[1] == "unshare":
+                pass
+
+    elif cmd[0] == "vm":
+        if len(cmd) > 1:
+            if cmd[1] == "ls":
+                pass
+            elif cmd[1] == "add":
+                pass
+            elif cmd[1] == "start":
+                pass
+            elif cmd[1] == "stop":
+                pass
+            elif cmd[1] == "rm":
+                pass
+            elif cmd[1] == "save":
+                pass
+            elif cmd[1] == "shares":
+                pass
+            elif cmd[1] == "share":
+                pass
+            elif cmd[1] == "unshare":
+                pass
+
+    else:
+        print("Unknown command. Type 'help' for a list of commands.")
