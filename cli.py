@@ -102,7 +102,7 @@ while True:
     elif cmd[0] == "host":
         if len(cmd) > 1:
             if cmd[1] == "ls":
-                query_value = ""
+                query_value = "" # FALTA LA QUERY
                 listHosts = requests.get(f"http://localhost:5000/iaas/hosts?query={query_value}", 
                   headers={"Authorization": f"{user[1]}"}, 
                   json={})
@@ -112,6 +112,7 @@ while True:
                         print(host)
                 else:
                     print(f"{Fore.RED}An error occurred while list hosts.{Style.RESET_ALL}")
+
             elif cmd[1] == "add":
                 if len(cmd) != 5:
                     print("- host add <addr> <user> <password>")
@@ -125,9 +126,18 @@ while True:
                     else:
                         print(f"{Fore.RED}An error occurred while adding the host.{Style.RESET_ALL}")
 
-
             elif cmd[1] == "rm":
-                pass
+                if len(cmd) != 3:
+                    print("- host rm <hostId>")
+                else: 
+                    print("Removing host...")
+                    host = requests.delete(f"http://localhost:5000/iaas/hosts/{cmd[2]}", 
+                    headers={"Authorization": f"'{root}'"})
+                    if host.status_code >= 200 and host.status_code < 300:
+                        print("Host removed successfully")
+                    else:
+                        print(f"{Fore.RED}An error occurred while removing the host.{Style.RESET_ALL}")
+
 
     elif cmd[0] == "user":
         if len(cmd) > 1:
