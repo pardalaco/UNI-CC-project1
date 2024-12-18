@@ -4,6 +4,18 @@ import iaas
 import os
 import iaas
 from colorama import Fore, Style
+import json
+
+
+# DEBUG ELIMINAR AL TERMINAR DE DEPURAR
+root = requests.post("http://localhost:5000/iaas/sessions", json={"email": "root", "password": "root"})
+root = root.text
+
+# listH = iaas.listHosts(root)
+# if listH != []:
+#     iaas.removeHost(root, listH[0]['id'])
+
+
 
 def help_login():
     print(f"""
@@ -69,7 +81,8 @@ def login():
 if not os.path.exists("./iaas.db"):
     iaas.init()
 
-user = login()
+# user = login()
+user = ("root", root) # DEBUG
 
 while True:
     cmd = input(f"{user[0]}> ").split()
@@ -86,15 +99,33 @@ while True:
         print("By")
         exit(0)
 
-    elif cmd[0] == "whoami":
-        pass
-
     elif cmd[0] == "host":
         if len(cmd) > 1:
             if cmd[1] == "ls":
-                pass
+                query_value = ""
+                listHosts = requests.get(f"http://localhost:5000/iaas/hosts?query={query_value}", 
+                  headers={"Authorization": f"{user[1]}"}, 
+                  json={})
+                if listHosts.status_code >= 200 and listHosts.status_code < 300:
+                    listHosts = json.loads(listHosts.text)
+                    for host in listHosts:
+                        print(host)
+                else:
+                    print(f"{Fore.RED}An error occurred while list hosts.{Style.RESET_ALL}")
             elif cmd[1] == "add":
-                pass
+                if len(cmd) != 5:
+                    print("- host add <addr> <user> <password>")
+                else:
+                    print("Adding host...")
+                    host = requests.post("http://localhost:5000/iaas/hosts", 
+                    headers={"Authorization": f"'{root}'"}, 
+                    json={"addr":cmd[2], "user":cmd[3], "password":cmd[4]})
+                    if host.status_code >= 200 and host.status_code < 300:
+                        print("Host added successfully")
+                    else:
+                        print(f"{Fore.RED}An error occurred while adding the host.{Style.RESET_ALL}")
+
+
             elif cmd[1] == "rm":
                 pass
 
