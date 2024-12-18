@@ -26,6 +26,15 @@ Avaiable commands:
     - login <email> <password>
           """)
 
+def help_host():
+    print(f"""
+Avaiable host commands:
+    - host ls [<query>]
+    - host add <addr> <user> <password>
+    - host update <hostId> <addr> <user> <password>
+    - host rm <hostId>
+          """)
+
 def help():
     print(f"""
 Usage: python3 cli.py
@@ -153,8 +162,8 @@ while True:
                     else:
                         print(host.status_code)
                         print(f"{Fore.RED}An error occurred while updated the host.{Style.RESET_ALL}")
-            
-            # else: help_host()
+            else: help_host()
+        else: help_host()
 
 
     elif cmd[0] == "user":
