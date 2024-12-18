@@ -119,7 +119,7 @@ while True:
                 else:
                     print("Adding host...")
                     host = requests.post("http://localhost:5000/iaas/hosts", 
-                    headers={"Authorization": f"'{root}'"}, 
+                    headers={"Authorization": f"'{user[1]}'"}, 
                     json={"addr":cmd[2], "user":cmd[3], "password":cmd[4]})
                     if host.status_code >= 200 and host.status_code < 300:
                         print("Host added successfully")
@@ -132,7 +132,7 @@ while True:
                 else: 
                     print("Removing host...")
                     host = requests.delete(f"http://localhost:5000/iaas/hosts/{cmd[2]}", 
-                    headers={"Authorization": f"'{root}'"})
+                    headers={"Authorization": f"'{user[1]}'"})
                     if host.status_code >= 200 and host.status_code < 300:
                         print("Host removed successfully")
                     else:
