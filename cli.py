@@ -70,11 +70,17 @@ if not os.path.exists("./iaas.db"):
     iaas.init()
 
 user = login()
+
 while True:
     cmd = input(f"{user[0]}> ").split()
     if len(cmd) == 0: pass
     elif cmd[0] == "login":
-        pass
+        request = requests.post("http://localhost:5000/iaas/sessions", json={"email": cmd[1], "password": cmd[2]})
+        if request.status_code == 500:
+            print(f"{Fore.RED}Loggin error, try again.{Style.RESET_ALL}")
+        else: 
+            user = (cmd[1], request.text)
+
 
     elif cmd[0] == "exit":
         print("By")
