@@ -937,7 +937,6 @@ def listVmShares(token:str, vmId:str):
     cur = db.cursor()
     try:
         cur.execute(f"""SELECT * FROM perms WHERE 
-                    user = '{issuer['id']}' and
                     resource = '{vmId}' and
                     type = 'vm';
                     """)

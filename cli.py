@@ -64,8 +64,8 @@ Avaiable host commands:
     - vm stop <vmId>
     - vm rm <vmId>
     - vm save <vmId> <imgName> <imgDesc>
-    - vm shares
-    - vm share <vmId> <userId>
+    - vm shares <vmId>
+    - vm share <vmId> <userEmail>
     - vm unshare <vmId> <userId>
           """)
 
@@ -96,8 +96,8 @@ Avaiable commands:
     - vm stop <vmId>
     - vm rm <vmId>
     - vm save <vmId> <imgName> <imgDesc>
-    - vm shares
-    - vm share <vmId> <userId>
+    - vm shares <vmId>
+    - vm share <vmId> <userEmail>
     - vm unshare <vmId> <userId>
           """)
 
@@ -418,11 +418,40 @@ while True:
             elif cmd[1] == "save":
                 pass
             elif cmd[1] == "shares":
-                pass
+                if len(cmd) != 3:
+                    print("- vm shares <vmId>")
+                else:
+                    shares = requests.get(f"http://localhost:5000/iaas/vms/{cmd[2]}/shares",
+                        headers={"Authorization": f"{user[1]}"})
+                    if shares.status_code >= 200 and shares.status_code < 300:
+                        shareList = json.loads(shares.text)
+                        for share in shareList:
+                            print(share)
+                    else:
+                        print(f"{Fore.RED}An error occurred while listing shares for the VM.{Style.RESET_ALL}")
+
             elif cmd[1] == "share":
-                pass
+                if len(cmd) != 4:
+                    print("- vm share <vmId> <userEmail>")
+                else:
+                    vmShare = requests.post(f"http://localhost:5000/iaas/vms/{cmd[2]}/shares",
+                        headers={"Authorization": f"{user[1]}"},
+                        json={"user": cmd[3]})
+                    if vmShare.status_code >= 200 and vmShare.status_code < 300:
+                        print("VM shared successfully")
+                    else:
+                        print(f"{Fore.RED}An error occurred while sharing the VM.{Style.RESET_ALL}")
+
             elif cmd[1] == "unshare":
-                pass
+                if len(cmd) != 4:
+                    print("- vm unshare <vmId> <userId>")
+                else:
+                    vmUnshare = requests.delete(f"http://localhost:5000/iaas/vms/{cmd[2]}/shares/{cmd[3]}",
+                        headers={"Authorization": f"{user[1]}"})
+                    if vmUnshare.status_code >= 200 and vmUnshare.status_code < 300:
+                        print("VM unshared successfully")
+                    else:
+                        print(f"{Fore.RED}An error occurred while unsharing the VM.{Style.RESET_ALL}")
             else: help_vms()
         else: help_vms()
             
