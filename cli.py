@@ -219,7 +219,16 @@ while True:
                             print(f"{Fore.RED}An error occurred while updating the user.{Style.RESET_ALL}")
 
             elif cmd[1] == "rm":
-                pass
+                if len(cmd) != 3:
+                    print("- user rm <userId>")
+                else:
+                    userDeleted = requests.delete(f"http://localhost:5000/iaas/users/{cmd[2]}", 
+                        headers={"Authorization": f"'{user[1]}'"})
+                    if userDeleted.status_code >= 200 and userDeleted.status_code < 300:
+                        print("User removed successfully")
+                    else:
+                        print(f"{Fore.RED}An error occurred while removing the user.{Style.RESET_ALL}")
+
 
     elif cmd[0] == "image":
         if len(cmd) > 1:
