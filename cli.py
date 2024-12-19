@@ -93,7 +93,7 @@ if not os.path.exists("./iaas.db"):
 
 # user = login()
 user = ("root", root) # DEBUG
-
+cmd=""
 while True:
     cmd = input(f"{user[0]}> ").split()
     if len(cmd) == 0: pass
@@ -112,7 +112,7 @@ while True:
     elif cmd[0] == "host":
         if len(cmd) > 1:
             if cmd[1] == "ls":
-                query_value = "" # FALTA LA QUERY
+                query_value = ""
                 if len(cmd) > 2:
                     query_value = ' '.join(cmd[2:])
 
@@ -171,8 +171,21 @@ while True:
 
     elif cmd[0] == "user":
         if len(cmd) > 1:
-            if cmd[1] == "list":
-                pass
+            if cmd[1] == "ls":
+                query_value = ""
+                if len(cmd) > 2:
+                    query_value = ' '.join(cmd[2:])
+
+                listUsers = requests.get(f"http://localhost:5000/iaas/users?query={query_value}", 
+                  headers={"Authorization": f"{user[1]}"}, 
+                  json={})
+                if listUsers.status_code >= 200 and listUsers.status_code < 300:
+                    listUsers = json.loads(listUsers.text)
+                    for userL in listUsers:
+                        print(userL)
+                else:
+                    print(f"{Fore.RED}An error occurred while list users.{Style.RESET_ALL}")
+
             elif cmd[1] == "add":
                 pass
             elif cmd[1] == "rm":
