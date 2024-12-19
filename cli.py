@@ -48,6 +48,7 @@ Avaiable commands:
     - host rm <hostId>
     - user list [<query>]
     - user add <email> <password>
+    - user update <email> <new password>
     - user rm <userId>
     - image ls [<query>]
     - image add <url> <name> <desc>
@@ -197,6 +198,25 @@ while True:
                         print("User added successfully")
                     else:
                         print(f"{Fore.RED}An error occurred while adding the user.{Style.RESET_ALL}")
+
+            elif cmd[1] == "update":
+                if len(cmd) != 4:
+                    print("- user update <email> <new password>")
+                else:
+                    query_value = f"email = '{cmd[2]}'"
+                    listUsers = requests.get(f"http://localhost:5000/iaas/users?query={query_value}", 
+                        headers={"Authorization": f"{user[1]}"}, 
+                        json={})
+                    if listUsers.status_code >= 200 and listUsers.status_code < 300:
+                        userUpdateId = json.loads(listUsers.text)[0]['id']
+
+                        userUpdate = requests.put(f"http://localhost:5000/iaas/users/{userUpdateId}", 
+                            headers={"Authorization": f"'{user[1]}'"}, 
+                            json={"password": cmd[3]})
+                        if userUpdate.status_code >= 200 and userUpdate.status_code < 300:
+                            print("User updated successfully")
+                        else:
+                            print(f"{Fore.RED}An error occurred while updating the user.{Style.RESET_ALL}")
 
             elif cmd[1] == "rm":
                 pass
