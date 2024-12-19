@@ -187,7 +187,17 @@ while True:
                     print(f"{Fore.RED}An error occurred while list users.{Style.RESET_ALL}")
 
             elif cmd[1] == "add":
-                pass
+                if len(cmd) != 4:
+                    print("- user add <email> <password>")
+                else:
+                    insertUser = requests.post("http://localhost:5000/iaas/users", 
+                        headers={"Authorization": f"'{user[1]}'"}, 
+                        json={"email": cmd[2], "password": cmd[3]})
+                    if insertUser.status_code >= 200 and insertUser.status_code < 300:
+                        print("User added successfully")
+                    else:
+                        print(f"{Fore.RED}An error occurred while adding the user.{Style.RESET_ALL}")
+
             elif cmd[1] == "rm":
                 pass
 
