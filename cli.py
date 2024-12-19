@@ -254,11 +254,44 @@ while True:
     elif cmd[0] == "image":
         if len(cmd) > 1:
             if cmd[1] == "ls":
-                pass
+                query_value = ""
+                if len(cmd) > 2:
+                    query_value = ' '.join(cmd[2:])
+
+                listImgs = requests.get(f"http://localhost:5000/iaas/images?query={query_value}",
+                    headers={"Authorization": f"{user[1]}"},
+                    json={})
+                if listImgs.status_code >= 200 and listImgs.status_code < 300:
+                    images = json.loads(listImgs.text)
+                    for img in images:
+                        print(img)
+                else:
+                    print(f"{Fore.RED}An error occurred while listing images.{Style.RESET_ALL}")
+
             elif cmd[1] == "add":
-                pass
+                if len(cmd) != 5:
+                    print("- image add <url> <name> <desc>")
+                else:
+                    print("Adding image...")
+                    addImg = requests.post("http://localhost:5000/iaas/images",
+                        headers={"Authorization": f"{user[1]}"},
+                        json={"url": cmd[2], "img": {"name": cmd[3], "desc": cmd[4]}})
+                    if addImg.status_code >= 200 and addImg.status_code < 300:
+                        print("Image added successfully")
+                    else:
+                        print(f"{Fore.RED}An error occurred while adding the image.{Style.RESET_ALL}")
+
             elif cmd[1] == "rm":
-                pass
+                if len(cmd) != 3:
+                    print("- image rm <imgId>")
+                else:
+                    print("Removing image")
+                    rmImg = requests.delete(f"http://localhost:5000/iaas/images/{cmd[2]}",
+                        headers={"Authorization": f"{user[1]}"})
+                    if rmImg.status_code >= 200 and rmImg.status_code < 300:
+                        print("Image removed successfully")
+                    else:
+                        print(f"{Fore.RED}An error occurred while removing the image.{Style.RESET_ALL}")
             elif cmd[1] == "shares":
                 pass
             elif cmd[1] == "share":
