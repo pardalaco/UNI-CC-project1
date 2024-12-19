@@ -416,7 +416,18 @@ while True:
                         print(f"{Fore.RED}An error occurred while removing the VM.{Style.RESET_ALL}")
 
             elif cmd[1] == "save":
-                pass
+                if len(cmd) != 5:
+                    print("- vm save <vmId> <imgName> <imgDesc>")
+                else:
+                    print("Saving image with vm...")
+                    saveVm = requests.put(f"http://localhost:5000/iaas/images/{cmd[2]}",
+                        headers={"Authorization": f"{user[1]}"},
+                        json={"image": {"name": cmd[3], "desc": cmd[4]}})
+                    if saveVm.status_code >= 200 and saveVm.status_code < 300:
+                        print("VM saved successfully")
+                    else:
+                        print(f"{Fore.RED}An error occurred while saving the VM.{Style.RESET_ALL}")
+
             elif cmd[1] == "shares":
                 if len(cmd) != 3:
                     print("- vm shares <vmId>")
