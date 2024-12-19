@@ -1119,7 +1119,6 @@ def listImageShares(token:str, imgId:str):
     cur = db.cursor()
     try:
         cur.execute(f"""SELECT * FROM perms WHERE 
-                    user = '{issuer['id']}' AND
                     resource = '{imgId}' and
                     type = 'image';
                     """)

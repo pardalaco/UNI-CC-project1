@@ -51,7 +51,7 @@ Avaiable host commands:
     - image add <url> <name> <desc>
     - image rm <imgId>
     - image shares <imgId>
-    - image share <imgId> <userId>
+    - image share <imgId> <userEmail>
     - image unshare <imgId> <userId>
           """)
 
@@ -74,7 +74,7 @@ Avaiable commands:
     - image add <url> <name> <desc>
     - image rm <imgId>
     - image shares <imgId>
-    - image share <imgId> <userId>
+    - image share <imgId> <userEmail>
     - image unshare <imgId> <userId>
     - vm ls [<query]
     - vm add <image> [<mem>]
@@ -293,11 +293,40 @@ while True:
                     else:
                         print(f"{Fore.RED}An error occurred while removing the image.{Style.RESET_ALL}")
             elif cmd[1] == "shares":
-                pass
+                if len(cmd) != 3:
+                    print("- image shares <imgId>")
+                else:
+                    perms = requests.get(f"http://localhost:5000/iaas/images/{cmd[2]}/shares",
+                        headers={"Authorization": f"{user[1]}"})
+                    if perms.status_code >= 200 and perms.status_code < 300:
+                        permissions = json.loads(perms.text)
+                        for perm in permissions:
+                            print(perm)
+                    else:
+                        print(f"{Fore.RED}An error occurred while listing shares for the image.{Style.RESET_ALL}")
+
             elif cmd[1] == "share":
-                pass
+                if len(cmd) != 4:
+                    print("- image share <imgId> <userEmail>")
+                else:
+                    imgShare = requests.post(f"http://localhost:5000/iaas/images/{cmd[2]}/shares",
+                        headers={"Authorization": f"{user[1]}"},
+                        json={"user": cmd[3]})
+                    if imgShare.status_code >= 200 and imgShare.status_code < 300:
+                        print("Image shared successfully")
+                    else:
+                        print(f"{Fore.RED}An error occurred while sharing the image.{Style.RESET_ALL}")
+
             elif cmd[1] == "unshare":
-                pass
+                if len(cmd) != 4:
+                    print("- image unshare <imgId> <userId>")
+                else:
+                    imgUnshare = requests.delete(f"http://localhost:5000/iaas/images/{cmd[2]}/shares/{cmd[3]}",
+                        headers={"Authorization": f"{user[1]}"})
+                    if imgUnshare.status_code >= 200 and imgUnshare.status_code < 300:
+                        print("Image unshared successfully")
+                    else:
+                        print(f"{Fore.RED}An error occurred while unsharing the image.{Style.RESET_ALL}")
             else: help_image()
         else: help_image()
 
@@ -321,6 +350,8 @@ while True:
                 pass
             elif cmd[1] == "unshare":
                 pass
+            
+    elif cmd[0] == "help": help()
 
     else:
         print("Unknown command. Type 'help' for a list of commands.")
