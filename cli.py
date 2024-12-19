@@ -44,6 +44,17 @@ Avaiable host commands:
     - user rm <userId>
           """)
 
+def help_image():
+    print(f"""
+Avaiable host commands:
+    - image ls [<query>]
+    - image add <url> <name> <desc>
+    - image rm <imgId>
+    - image shares <imgId>
+    - image share <imgId> <userId>
+    - image unshare <imgId> <userId>
+          """)
+
 def help():
     print(f"""
 Usage: python3 cli.py
@@ -254,6 +265,8 @@ while True:
                 pass
             elif cmd[1] == "unshare":
                 pass
+            else: help_image()
+        else: help_image()
 
     elif cmd[0] == "vm":
         if len(cmd) > 1:
