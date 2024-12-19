@@ -34,6 +34,15 @@ Avaiable host commands:
     - host update <hostId> <addr> <user> <password>
     - host rm <hostId>
           """)
+    
+def help_user():
+    print(f"""
+Avaiable host commands:
+    - user list [<query>]
+    - user add <email> <password>
+    - user update <email> <new password>
+    - user rm <userId>
+          """)
 
 def help():
     print(f"""
@@ -228,7 +237,8 @@ while True:
                         print("User removed successfully")
                     else:
                         print(f"{Fore.RED}An error occurred while removing the user.{Style.RESET_ALL}")
-
+            else: help_user()
+        else: help_user()
 
     elif cmd[0] == "image":
         if len(cmd) > 1:
