@@ -54,6 +54,20 @@ Avaiable host commands:
     - image share <imgId> <userEmail>
     - image unshare <imgId> <userId>
           """)
+    
+def help_vms():
+    print(f"""
+Avaiable host commands:
+    - vm ls [<query]
+    - vm add <image> [<mem>]
+    - vm start <vmId>
+    - vm stop <vmId>
+    - vm rm <vmId>
+    - vm save <vmId> <imgName> <imgDesc>
+    - vm shares
+    - vm share <vmId> <userId>
+    - vm unshare <vmId> <userId>
+          """)
 
 def help():
     print(f"""
@@ -350,6 +364,8 @@ while True:
                 pass
             elif cmd[1] == "unshare":
                 pass
+            else: help_vms()
+        else: help_vms()
             
     elif cmd[0] == "help": help()
 
