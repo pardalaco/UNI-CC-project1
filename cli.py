@@ -6,17 +6,6 @@ import iaas
 from colorama import Fore, Style
 import json
 
-
-# DEBUG ELIMINAR AL TERMINAR DE DEPURAR
-root = requests.post("http://localhost:5000/iaas/sessions", json={"email": "root", "password": "root"})
-root = root.text
-
-# listH = iaas.listHosts(root)
-# if listH != []:
-#     iaas.removeHost(root, listH[0]['id'])
-
-
-
 def help_login():
     print(f"""
 Usage: python3 cli.py
@@ -126,8 +115,7 @@ def login():
 if not os.path.exists("./iaas.db"):
     iaas.init()
 
-# user = login()
-user = ("root", root) # DEBUG
+user = login()
 cmd=""
 while True:
     cmd = input(f"{user[0]}> ").split()
