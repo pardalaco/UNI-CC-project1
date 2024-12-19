@@ -347,15 +347,74 @@ while True:
     elif cmd[0] == "vm":
         if len(cmd) > 1:
             if cmd[1] == "ls":
-                pass
+                query_value = ""
+                if len(cmd) > 2:
+                    query_value = ' '.join(cmd[2:])
+
+                listVms = requests.get(f"http://localhost:5000/iaas/vms?query={query_value}",
+                    headers={"Authorization": f"{user[1]}"},
+                    json={})
+                if listVms.status_code >= 200 and listVms.status_code < 300:
+                    vms = json.loads(listVms.text)
+                    for vm in vms:
+                        print(vm)
+                else:
+                    print(f"{Fore.RED}An error occurred while listing VMs.{Style.RESET_ALL}")
+
             elif cmd[1] == "add":
-                pass
+                if len(cmd) < 3 or len(cmd) > 4:
+                    print("- vm add <image> [<mem>]")
+                else:
+                    mem = ""
+                    if len(cmd) == 4:
+                        mem = cmd[3]
+                    print("Adding vm...")
+                    addVm = requests.post("http://localhost:5000/iaas/vms",
+                        headers={"Authorization": f"{user[1]}"},
+                        json={"image": cmd[2], "mem": mem})
+                    if addVm.status_code >= 200 and addVm.status_code < 300:
+                        print("VM added successfully")
+                    else:
+                        print(f"{Fore.RED}An error occurred while adding the VM.{Style.RESET_ALL}")
+
             elif cmd[1] == "start":
-                pass
+                if len(cmd) != 3:
+                    print("- vm start <vmId>")
+                else:
+                    print("Starting vm...")
+                    startVm = requests.put(f"http://localhost:5000/iaas/vms/{cmd[2]}",
+                        headers={"Authorization": f"{user[1]}"},
+                        json={"state": "start"})
+                    if startVm.status_code >= 200 and startVm.status_code < 300:
+                        print("VM started successfully")
+                    else:
+                        print(f"{Fore.RED}An error occurred while starting the VM.{Style.RESET_ALL}")
+
             elif cmd[1] == "stop":
-                pass
+                if len(cmd) != 3:
+                    print("- vm stop <vmId>")
+                else:
+                    print("Stopping vm...")
+                    stopVm = requests.put(f"http://localhost:5000/iaas/vms/{cmd[2]}",
+                        headers={"Authorization": f"{user[1]}"},
+                        json={"state": "stop"})
+                    if stopVm.status_code >= 200 and stopVm.status_code < 300:
+                        print("VM stopped successfully")
+                    else:
+                        print(f"{Fore.RED}An error occurred while stopping the VM.{Style.RESET_ALL}")
+
             elif cmd[1] == "rm":
-                pass
+                if len(cmd) != 3:
+                    print("- vm rm <vmId>")
+                else:
+                    print("Removimg vm...")
+                    rmVm = requests.delete(f"http://localhost:5000/iaas/vms/{cmd[2]}",
+                        headers={"Authorization": f"{user[1]}"})
+                    if rmVm.status_code >= 200 and rmVm.status_code < 300:
+                        print("VM removed successfully")
+                    else:
+                        print(f"{Fore.RED}An error occurred while removing the VM.{Style.RESET_ALL}")
+
             elif cmd[1] == "save":
                 pass
             elif cmd[1] == "shares":

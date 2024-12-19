@@ -261,6 +261,7 @@ def addVm(vm:dict):
     Se guardan los cambios en la base de datos.
     """
     print("core.addVm()")
+    print(vm)
     
     # Comprobamos que la entrada sea correcta
     if "image" not in vm: raise Exception("Missing image")
@@ -297,7 +298,8 @@ def addVm(vm:dict):
         template = f.read()
         f.close()
         
-        vm["mem"] = vm["mem"] if "mem" in vm else 256000
+        if "mem" not in vm or vm["mem"] == "":
+            vm["mem"] = 256000
         
         template = template.replace("{{NAME}}", vm["id"]).replace("{{DISK}}", os.path.join(DIR_HOST_VMS, vm["id"] + ".qcow2")).replace("{{MEM}}", str(vm["mem"]))
         

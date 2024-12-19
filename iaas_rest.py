@@ -265,10 +265,10 @@ def updateVm(vmId):
     try:
         updated_vm = None
         if data["state"] == "start": 
-            updated_vm = iaas.startVm(token, vmId)
+            iaas.startVm(token, vmId)
         elif data["state"] == "stop": 
-            updated_vm = iaas.stopVm(token, vmId)
-        return updated_vm, 200
+            iaas.stopVm(token, vmId)
+        return {}, 200
     except Exception as e:
         return {"error": str(e)}, 400
 
